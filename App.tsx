@@ -1,14 +1,38 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
 import FriendActivityScreen from "./screens/FriendActivity";
 import HomeScreen from "./screens/Home";
 import SettingsScreen from "./screens/Settings";
+import SignInScreen from "./screens/SignIn";
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [userIsSignedIn, setUserIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      setUserIsSignedIn(Boolean(user));
+    });
+  }, []);
+
+  if (!userIsSignedIn) {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Sign In">
+          <Stack.Screen name="Sign In" component={SignInScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Tab.Navigator
