@@ -1,9 +1,9 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { auth } from "../firebaseConfig";
 
-export default function SignInScreen({ navigation }) {
+export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -22,21 +22,15 @@ export default function SignInScreen({ navigation }) {
           style={[styles.input, { marginTop: 8 }]}
         />
         <Pressable
-          onPress={() =>
-            signInWithEmailAndPassword(auth, email, password).catch((error) =>
-              console.error(error)
-            )
-          }
-          style={styles.signInButton}
+          onPress={() => {
+            createUserWithEmailAndPassword(auth, email, password).catch(
+              (error) => console.error(error)
+            );
+          }}
+          style={styles.signUpButton}
         >
-          <Text style={styles.signInButtonText}>Sign in</Text>
+          <Text style={styles.signUpButtonText}>Sign up</Text>
         </Pressable>
-        <View style={styles.noAccountContainer}>
-          <Text style={styles.noAccountText}>Don't have an account?</Text>
-          <Pressable onPress={() => navigation.navigate("Sign Up")}>
-            <Text style={styles.signUpButton}> Sign up.</Text>
-          </Pressable>
-        </View>
       </View>
     </View>
   );
@@ -60,7 +54,7 @@ const styles = StyleSheet.create({
     height: 64,
     padding: 16,
   },
-  signInButton: {
+  signUpButton: {
     alignItems: "center",
     backgroundColor: "#000",
     borderRadius: 8,
@@ -68,24 +62,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 8,
   },
-  signInButtonText: {
+  signUpButtonText: {
     alignItems: "center",
     color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     justifyContent: "center",
-  },
-  noAccountContainer: {
-    alignItems: "baseline",
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  noAccountText: {
-    fontSize: 18,
-    marginTop: 8,
-  },
-  signUpButton: {
-    color: "#0000FF",
-    fontSize: 18,
   },
 });

@@ -10,6 +10,7 @@ import FriendActivityScreen from "./screens/FriendActivity";
 import HomeScreen from "./screens/Home";
 import SettingsScreen from "./screens/Settings";
 import SignInScreen from "./screens/SignIn";
+import SignUpScreen from "./screens/SignUp";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Sign In">
           <Stack.Screen name="Sign In" component={SignInScreen} />
+          <Stack.Screen name="Sign Up" component={SignUpScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
