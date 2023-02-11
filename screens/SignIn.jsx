@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   subcontainer: {
-    maxWidth: 300,
+    maxWidth: 350,
     width: "100%",
   },
   input: {
@@ -50,9 +50,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     fontSize: 16,
     height: 64,
-    maxWidth: 300,
     padding: 16,
-    width: "100%",
   },
   signInButton: {
     alignItems: "center",
