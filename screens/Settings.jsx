@@ -1,28 +1,17 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { auth } from "../firebaseConfig";
 
 export default function SettingsScreen() {
   return (
     <View>
-      <Pressable onPress={() => auth.signOut().catch()} style={styles.setting}>
+      <Pressable
+        className="h-16 flex-row items-center bg-white px-4"
+        onPress={() => auth.signOut().catch()}
+      >
         <Ionicons name="exit" size={18} />
-        <Text style={styles.settingText}>Sign out</Text>
+        <Text className="ml-2 text-lg">Sign out</Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  setting: {
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    height: 64,
-    paddingHorizontal: 16,
-  },
-  settingText: {
-    fontSize: 18,
-    marginLeft: 8,
-  },
-});

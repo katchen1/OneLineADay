@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { auth } from "../firebaseConfig";
 
 export default function SignUpScreen({ navigation }) {
@@ -8,65 +8,32 @@ export default function SignUpScreen({ navigation }) {
   const [password, setPassword] = useState("");
 
   return (
-    <View style={styles.container}>
-      <View style={styles.subcontainer}>
+    <View className="flex-1 items-center justify-center bg-white">
+      <View className="w-full max-w-xs">
         <TextInput
+          className="h-16 rounded-md border border-gray-500 p-4 text-base"
           placeholder="Email"
           onChangeText={setEmail}
-          style={styles.input}
         />
         <TextInput
+          className="mt-2 h-16 rounded-md border border-gray-500 p-4 text-base"
           placeholder="Password"
           secureTextEntry={true}
           onChangeText={setPassword}
-          style={[styles.input, { marginTop: 8 }]}
         />
         <Pressable
+          className="mt-2 h-16 items-center justify-center rounded-md bg-blue-700"
           onPress={() => {
             createUserWithEmailAndPassword(auth, email, password).catch(
               (error) => console.error(error)
             );
           }}
-          style={styles.signUpButton}
         >
-          <Text style={styles.signUpButtonText}>Sign up</Text>
+          <Text className="items-center justify-center text-xl font-bold text-gray-100">
+            Sign up
+          </Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flex: 1,
-    justifyContent: "center",
-  },
-  subcontainer: {
-    maxWidth: 350,
-    width: "100%",
-  },
-  input: {
-    borderRadius: 8,
-    borderWidth: 2,
-    fontSize: 16,
-    height: 64,
-    padding: 16,
-  },
-  signUpButton: {
-    alignItems: "center",
-    backgroundColor: "#000",
-    borderRadius: 8,
-    height: 64,
-    justifyContent: "center",
-    marginTop: 8,
-  },
-  signUpButtonText: {
-    alignItems: "center",
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
-    justifyContent: "center",
-  },
-});
