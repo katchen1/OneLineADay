@@ -1,7 +1,8 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { doc, getDoc } from "firebase/firestore";
 import React from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import Entry from "../components/Entry";
 import { auth, db } from "../firebaseConfig";
 
@@ -17,11 +18,14 @@ class HomeScreen extends React.Component {
     if (docSnap.exists) {
       this.setState({ user: docSnap.data(), isLoading: false });
 
-      // Update the screen title
+      // Update the screen header
       let date = new Date();
       let monthString = date.toLocaleString("default", { month: "long"});
       let dateString = date.getDate()
-      this.navigation.setOptions({ title: "My " + monthString + " " + dateString });
+      this.navigation.setOptions({ 
+        title: "My " + monthString + " " + dateString,
+        headerRight: () => (<Ionicons style={styles.dateButton} name="calendar" size={28}/>)
+      });
     }
   }
 
@@ -51,3 +55,9 @@ export default function(props) {
   const navigation = useNavigation();
   return <HomeScreen {...props} navigation={navigation} />
 }
+
+const styles = StyleSheet.create({
+  dateButton: {
+    marginRight: 10,
+  }
+});
