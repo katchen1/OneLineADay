@@ -32,7 +32,6 @@ class HomeScreen extends React.Component {
   // Callback of selecting a date in the calendar
   onDateChange = (date) => {
     this.setState({ selectedDate: date });
-    // this.toggleModal();
   }
 
   // Go to the previous day
@@ -45,6 +44,10 @@ class HomeScreen extends React.Component {
     this.setState({ selectedDate: this.state.selectedDate.add(1, 'days')});
   }
 
+  // Add a journal entry
+  createOnPress = () => {
+    console.log("create on press");
+  }
 
   // Invoked immediately after the component is mounted  
   async componentDidMount() {
@@ -58,28 +61,27 @@ class HomeScreen extends React.Component {
     }
   }
 
-  createOnPress = () => {
-    console.log("create on press");
-  }
-
   render() {
+    // Buffer
     if (this.state.isLoading) {
       return <Text>Loading...</Text>
     }
 
+    // Filter entries of the selected date
     let selectedDateString = this.state.selectedDate.format("MMMM D");
     let filteredEntries = this.state.user.entries.filter( entry => {
-      // Display only entries of the selected date
       let entryDateString = moment(entry.date.toDate()).format("MMMM D");
       return entryDateString == selectedDateString;
     });
     
-    let hasEntryThisYear = false;
+    // Allow new entry only if the user does not have an entry for this day this year
+    let allowNewEntry = true;
     filteredEntries.forEach(
-      // Display the create button only if user doesn't have an entry this year
       function(entry) {
-        if (moment(entry.date.toDate()).format("YYYY") == moment().format("YYYY")) {
-          hasEntryThisYear = true;
+        let entryYear = moment(entry.date.toDate()).format("YYYY");
+        let thisYear = moment().format("YYYY");
+        if (entryYear == thisYear) {
+          allowNewEntry = false;
         }
       }
     )
@@ -87,37 +89,40 @@ class HomeScreen extends React.Component {
     return <View style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <Ionicons name="arrow-back" size={28} onPress={this.previousDay}/>
+          <Ionicons name="arrow-back" size={28} onPress={this.previousDay} />
           <Text style={styles.dateText}>{selectedDateString}</Text>
-          <Ionicons name="arrow-forward" size={28} onPress={this.nextDay}/>
+          <Ionicons name="arrow-forward" size={28} onPress={this.nextDay} />
         </View>
 
-        {hasEntryThisYear? <View/>: <Pressable style={styles.addButton} onPress={this.createOnPress}>
-          <Ionicons style={{alignSelf: "center"}} name="create" size={28} color="#305DBF"/>
-        </Pressable>}
-        
+        {
+          // The "create" button
+          allowNewEntry? <Pressable style={styles.addButton} onPress={this.createOnPress}>
+            <Ionicons style={styles.createIcon} name="create" size={28} color="#305DBF" />
+          </Pressable> : <View/>
+        }
         
         {
-          filteredEntries.map( (entry, index) => {
-            return <Entry key={ index } entry={ entry }/>;
+          // List of the user's entry of the selected date
+          filteredEntries.map((entry, index) => {
+            return <Entry key={index} entry={entry} />;
           })
         }
       </ScrollView>
 
       <Modal 
-        style={styles.modal}
         isVisible={this.state.isCalendarVisible}
         onBackdropPress={this.toggleModal}
+        style={styles.modal}
       >
         <CalendarPicker
-          onDateChange={this.onDateChange}
-          minDate={new Date("January 1, " + new Date().getFullYear())}
           maxDate={new Date("December 31, " + new Date().getFullYear())}
+          minDate={new Date("January 1, " + new Date().getFullYear())}
+          nextComponent={<Ionicons name="arrow-forward" size={24} />}
+          onDateChange={this.onDateChange}
+          previousComponent={<Ionicons name="arrow-back" size={24} />}
+          restrictMonthNavigation={true}
           selectedDayColor="#305DBF"
           selectedDayTextColor="#FFFFFF"
-          restrictMonthNavigation={true}
-          previousComponent={<Ionicons name="arrow-back" size={24}/>}
-          nextComponent={<Ionicons name="arrow-forward" size={24}/>}
         />
       </Modal>   
     </View>; 
@@ -143,6 +148,9 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "column",
+  },
+  createIcon: {
+    alignSelf: "center",
   },
   dateButton: {
     marginRight: 10,

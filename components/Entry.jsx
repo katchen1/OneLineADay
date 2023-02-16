@@ -36,27 +36,37 @@ const Entry = ({entry}) => {
 
 export default Entry;
 
-// Style
+// Style sheet
 const styles = StyleSheet.create({
   container: {
+    alignItems: "left",
+    backgroundColor: "white",
+    borderRadius: 10,
     display: "flex",
     flexDirection: "column",
-    backgroundColor: "white",
-    alignItems: "left",
     marginHorizontal: 10,
     marginVertical: 5,
     padding: 10,
-    borderRadius: 10,
-  },
-  entryImage: {
-    width: "100%",
-    height: 200,
-    resizeMode: "cover",
-    borderRadius: 10,
   },
   entryHeader: {
     display: "flex",
     flexDirection: "row",
+    marginBottom: 5,
+  },
+  entryImage: {
+    borderRadius: 10,
+    height: 200,
+    resizeMode: "cover",
+    width: "100%", 
+  },
+  entrySubtitle: {
+    color: "grey",
+    fontSize: 14,
+    fontWeight: "300",
+  },
+  entryText: {
+    fontSize: 14,
+    fontWeight: "300",
     marginBottom: 5,
   },
   entryTitle: {
@@ -64,14 +74,4 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginRight: 5,
   },
-  entrySubtitle: {
-    fontSize: 14,
-    fontWeight: "300",
-    color: "grey",
-  },
-  entryText: {
-    fontSize: 14,
-    fontWeight: "300",
-    marginBottom: 5,
-  }
 });
