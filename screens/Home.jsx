@@ -3,7 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import CalendarPicker from 'react-native-calendar-picker';
 import Modal from "react-native-modal";
 import Entry from "../components/Entry";
@@ -58,12 +58,32 @@ class HomeScreen extends React.Component {
     }
   }
 
+  createOnPress = () => {
+    console.log("create on press");
+  }
+
   render() {
     if (this.state.isLoading) {
       return <Text>Loading...</Text>
     }
 
     let selectedDateString = this.state.selectedDate.format("MMMM D");
+    let filteredEntries = this.state.user.entries.filter( entry => {
+      // Display only entries of the selected date
+      let entryDateString = moment(entry.date.toDate()).format("MMMM D");
+      return entryDateString == selectedDateString;
+    });
+    
+    let hasEntryThisYear = false;
+    filteredEntries.forEach(
+      // Display the create button only if user doesn't have an entry this year
+      function(entry) {
+        if (moment(entry.date.toDate()).format("YYYY") == moment().format("YYYY")) {
+          hasEntryThisYear = true;
+        }
+      }
+    )
+
     return <View style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
@@ -71,13 +91,14 @@ class HomeScreen extends React.Component {
           <Text style={styles.dateText}>{selectedDateString}</Text>
           <Ionicons name="arrow-forward" size={28} onPress={this.nextDay}/>
         </View>
+
+        {hasEntryThisYear? <View/>: <Pressable style={styles.addButton} onPress={this.createOnPress}>
+          <Ionicons style={{alignSelf: "center"}} name="create" size={28} color="#305DBF"/>
+        </Pressable>}
+        
         
         {
-          this.state.user.entries.filter( entry => {
-            // Display only entries of the selected date
-            let entryDateString = moment(entry.date.toDate()).format("MMMM D");
-            return entryDateString == selectedDateString;
-          }).map( (entry, index) => {
+          filteredEntries.map( (entry, index) => {
             return <Entry key={ index } entry={ entry }/>;
           })
         }
@@ -110,6 +131,15 @@ export default function(props) {
 
 // Style sheet
 const styles = StyleSheet.create({
+  addButton: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    height: 80,
+    marginHorizontal: 10,
+    marginVertical: 5,
+    padding: 10,
+    justifyContent: "center",
+  },
   container: {
     display: "flex",
     flexDirection: "column",
