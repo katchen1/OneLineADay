@@ -1,11 +1,28 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
+
 
 export default function SignUpScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // Creates a user in Firestore Database
+  const signUp = async () => {
+    try {
+      let credential = await createUserWithEmailAndPassword(auth, email, password);
+      let uid = credential.user.uid;
+      await setDoc(doc(db, "users", uid), {
+        // Default data
+        email: email,
+        entries: []
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <View className="flex-1 items-center justify-center bg-white">
@@ -23,11 +40,7 @@ export default function SignUpScreen({ navigation }) {
         />
         <Pressable
           className="mt-2 h-16 items-center justify-center rounded-md bg-blue-700"
-          onPress={() => {
-            createUserWithEmailAndPassword(auth, email, password).catch(
-              (error) => console.error(error)
-            );
-          }}
+          onPress={signUp}
         >
           <Text className="items-center justify-center text-xl font-bold text-gray-100">
             Sign up
