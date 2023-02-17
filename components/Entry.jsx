@@ -39,7 +39,7 @@ export default Entry;
 // Style sheet
 const styles = StyleSheet.create({
   container: {
-    alignItems: "left",
+    alignItems: "flex-start",
     backgroundColor: "white",
     borderRadius: 10,
     display: "flex",

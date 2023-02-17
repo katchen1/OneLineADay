@@ -172,6 +172,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     marginHorizontal: 10,
-    marginVertical: 250,
+    marginVertical: 200,
   },
 });
