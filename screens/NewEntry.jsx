@@ -1,14 +1,10 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import React from "react";
-import { LogBox, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import EntryEditable from "../components/EntryEditable";
 
-LogBox.ignoreLogs([
-  'Non-serializable values were found in the navigation state',
-]);
 
 class NewEntryScreen extends React.Component {
   constructor(props) {
@@ -30,11 +26,10 @@ class NewEntryScreen extends React.Component {
   
   // Save entry
   saveOnPress = () => {
-    if (this.oldEntry.image == this.state.image) {
-      this.handleReturn();
-    } else {
-      this.uploadImage(this.state.image);
-    }
+    this.entry.image = this.state.image;
+    this.entry.text = this.state.text;
+    this.onReturn(this.oldEntry, this.entry);
+    this.navigation.goBack();
   }
 
   // Delete entry
@@ -51,25 +46,6 @@ class NewEntryScreen extends React.Component {
   // On change text
   changeText = (newText) => {
     this.entry.text = newText;
-  }
-
-  // Handle return
-  handleReturn = () => {
-    this.entry.text = this.state.text;
-    this.onReturn(this.oldEntry, this.entry);
-    this.navigation.goBack();
-  }
-
-  // Upload image
-  uploadImage = async (uri) => {
-    let time = new Date().getTime().toString();
-    const storageRef = ref(getStorage(), "images/" + time + ".png");
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const snapshot = await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    this.entry.image = downloadURL;
-    this.handleReturn();
   }
 
   render() {

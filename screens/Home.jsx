@@ -36,19 +36,20 @@ class HomeScreen extends React.Component {
   };
 
   // Callback of selecting a date in the calendar
-  onDateChange = (date) => {
-    this.setState({ selectedDate: moment(date) });
+  onDateChange = (newDate) => {
+    this.setState({ selectedDate: this.state.selectedDate.set(moment(newDate).toObject()) });
+    this.filterEntries();
   }
 
   // Go to the previous day
   previousDay = () => {
-    this.setState({ selectedDate: this.state.selectedDate.subtract(1, 'days')});
+    this.setState({ selectedDate: this.state.selectedDate.subtract(1, 'days') });
     this.filterEntries();
   }
 
   // Go to the next day
   nextDay = () => {
-    this.setState({ selectedDate: this.state.selectedDate.add(1, 'days')});
+    this.setState({ selectedDate: this.state.selectedDate.add(1, 'days') });
     this.filterEntries();
   }
 
@@ -64,19 +65,25 @@ class HomeScreen extends React.Component {
       Toast.show("Entry deleted");
     } else if (index == -1) {
       // Create a new entry
+      let temp = newEntry.image;
+      newEntry.image = "https://picsum.photos/300/200";
       await updateDoc(this.userRef, {
         entries: arrayUnion(newEntry)
       });
+      newEntry.image = temp;
       this.state.user.entries.push(newEntry);
       Toast.show("Entry created");
     } else {
       // Update an existing entry
+      let temp = newEntry.image;
+      newEntry.image = oldEntry.image;
       await updateDoc(this.userRef, {
         entries: arrayRemove(oldEntry)
       });
       await updateDoc(this.userRef, {
         entries: arrayUnion(newEntry)
       });
+      newEntry.image = temp;
       Toast.show("Entry updated");
     }
     this.filterEntries();
@@ -96,7 +103,7 @@ class HomeScreen extends React.Component {
   // Add a journal entry
   createOnPress = () => {
     this.navigation.navigate("New Entry", {
-      entry: {text: "", date: this.state.selectedDate.format("YYYY-MM-DD")}, 
+      entry: {text: "", date: this.state.selectedDate.format("YYYY-MM-DD"), image: ""}, 
       editing: false,
       onReturn: (oldEntry, newEntry) => this.updateEntry(oldEntry, newEntry, -1),
     });

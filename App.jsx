@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { LogBox } from 'react-native';
 import colors from "tailwindcss/colors";
 import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
@@ -13,6 +14,8 @@ import NewEntryScreen from "./screens/NewEntry";
 import SettingsScreen from "./screens/Settings";
 import SignInScreen from "./screens/SignIn";
 import SignUpScreen from "./screens/SignUp";
+
+LogBox.ignoreAllLogs();
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();

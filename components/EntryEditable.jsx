@@ -1,13 +1,8 @@
 import * as ImagePicker from 'expo-image-picker';
 import moment from "moment";
 import React from "react";
-import { Image, LogBox, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { AutoGrowingTextInput } from "react-native-autogrow-textinput";
-
-
-LogBox.ignoreLogs([
-  'Non-serializable values were found in the navigation state',
-]);
 
 const EntryEditable = ({entry, text, setText, image, setImage}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
