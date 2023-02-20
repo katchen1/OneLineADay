@@ -1,3 +1,4 @@
+import moment from "moment";
 import React from "react";
 import { Image, LogBox, StyleSheet, Text, View } from "react-native";
 import { AutoGrowingTextInput } from "react-native-autogrow-textinput";
@@ -7,7 +8,7 @@ LogBox.ignoreLogs([
 ]);
 
 const EntryEditable = ({entry, text, setText}) => {
-  let year = entry.date.year();
+  let year = moment(entry.date, "YYYY-MM-DD").year();
   
   // Calculate years ago
   let yearsAgoText = "";

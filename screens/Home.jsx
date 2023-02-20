@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { doc, getDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -16,19 +16,15 @@ class HomeScreen extends React.Component {
     super(props);
     this.navigation = props.navigation;
     this.state = { user: {}, filteredEntries: [], selectedDate: moment(), isCalendarVisible: false, isLoading : true };
-    this.toast = null;
   }
   
   // Query user data
   queryUser = async (user) => {
-    let docSnap = await getDoc(doc(db, "users", user.uid));
+    this.userRef = doc(db, "users", user.uid);
+    let docSnap = await getDoc(this.userRef);
     if (docSnap.exists) {
       // Convert Firestore datetime to javascript date
       let user = docSnap.data();
-      user.entries = user.entries.map((entry, _) => {
-        entry.date = moment(entry.date.toDate());
-        return entry;
-      });
       this.setState({ user: user, isLoading: false });
       this.filterEntries();
     }
@@ -57,16 +53,30 @@ class HomeScreen extends React.Component {
   }
 
   // Update entry
-  updateEntry = (newEntry, index) => {
+  updateEntry = async (oldEntry, newEntry, index) => {
     if (newEntry == null) {
+      // Delete an entry
       let i = this.state.user.entries.indexOf(this.state.filteredEntries[index]);
+      await updateDoc(this.userRef, {
+        entries: arrayRemove(oldEntry)
+      });
       delete this.state.user.entries[i];
       Toast.show("Entry deleted");
     } else if (index == -1) {
+      // Create a new entry
+      await updateDoc(this.userRef, {
+        entries: arrayUnion(newEntry)
+      });
       this.state.user.entries.push(newEntry);
       Toast.show("Entry created");
     } else {
-      this.state.filteredEntries[index] = newEntry;
+      // Update an existing entry
+      await updateDoc(this.userRef, {
+        entries: arrayRemove(oldEntry)
+      });
+      await updateDoc(this.userRef, {
+        entries: arrayUnion(newEntry)
+      });
       Toast.show("Entry updated");
     }
     this.filterEntries();
@@ -76,7 +86,7 @@ class HomeScreen extends React.Component {
   filterEntries = () => {
     let selectedDateString = this.state.selectedDate.format("MMMM D");
     this.setState({filteredEntries: this.state.user.entries.filter(entry => {
-      let entryDateString = moment(entry.date).format("MMMM D");
+      let entryDateString = moment(entry.date, "YYYY-MM-DD").format("MMMM D");
       return entryDateString == selectedDateString;
     }).sort((entry1, entry2) => {
       return entry2.date - entry1.date;
@@ -86,9 +96,9 @@ class HomeScreen extends React.Component {
   // Add a journal entry
   createOnPress = () => {
     this.navigation.navigate("New Entry", {
-      entry: {text: "", date: this.state.selectedDate}, 
+      entry: {text: "", date: this.state.selectedDate.format("YYYY-MM-DD")}, 
       editing: false,
-      onReturn: (newEntry) => this.updateEntry(newEntry, -1),
+      onReturn: (oldEntry, newEntry) => this.updateEntry(oldEntry, newEntry, -1),
     });
   }
 
@@ -116,7 +126,7 @@ class HomeScreen extends React.Component {
     let allowNewEntry = true;
     this.state.filteredEntries.forEach(
       function(entry) {
-        let entryYear = moment(entry.date).format("YYYY");
+        let entryYear = moment(entry.date, "YYYY-MM-DD").format("YYYY");
         let thisYear = moment().format("YYYY");
         if (entryYear == thisYear) {
           allowNewEntry = false;

@@ -17,7 +17,6 @@ class NewEntryScreen extends React.Component {
     this.editing = props.route.params.editing;
     this.onReturn = props.route.params.onReturn;
     this.state = {text: this.entry.text};
-    this.entry.date = moment(this.entry.date);
     if (this.editing) {
       // Editing an existing entry
       this.navigation.setOptions({ 
@@ -25,18 +24,19 @@ class NewEntryScreen extends React.Component {
         headerRight: () => (<Ionicons style={styles.deleteButton} name="trash" size={28} onPress={this.deleteOnPress} />)
       });
     }
+    this.oldEntry = JSON.parse(JSON.stringify(this.entry));
   }
   
   // Save entry
   saveOnPress = () => {
     this.entry.text = this.state.text;
-    this.onReturn(this.entry);
+    this.onReturn(this.oldEntry, this.entry);
     this.navigation.goBack();
   }
 
   // Delete entry
   deleteOnPress = () => {
-    this.onReturn(null);
+    this.onReturn(this.oldEntry, null);
     this.navigation.goBack();
   }
 
@@ -51,7 +51,7 @@ class NewEntryScreen extends React.Component {
   }
 
   render() {
-    let dateString = this.entry.date.format("MMMM D");
+    let dateString = moment(this.entry.date, "YYYY-MM-DD").format("MMMM D");
 
     return <View>
       <ScrollView style={styles.scrollView}>

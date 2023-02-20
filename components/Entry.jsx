@@ -3,7 +3,7 @@ import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 const Entry = ({entry, navigation, index, updateEntry}) => {
-  let year = moment(entry.date).year();
+  let year = moment(entry.date, "YYYY-MM-DD").year();
   
   // Calculate years ago
   let yearsAgoText = "";
@@ -22,7 +22,7 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
         navigation.navigate("New Entry", {
           entry: entry,
           editing: true,
-          onReturn: (newEntry) => updateEntry(newEntry, index),
+          onReturn: (oldEntry, newEntry) => updateEntry(oldEntry, newEntry, index),
         });
       }}
     >
