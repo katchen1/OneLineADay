@@ -18,8 +18,7 @@ const EntryEditable = ({entry, text, setText, image, setImage}) => {
     yearsAgoText = yearsAgo + " Years Ago";
   }
 
-  // First step is to put an image in Firebase Storage, 
-  // then get link of the image from there and save it to Cloud Firestore. 
+  // Launch image picker and update entry with the new image's URI
   const selectImageOnPress = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -102,9 +101,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#305DBF",
     borderRadius: 10,
     height: 80,
+    justifyContent: "center",
     marginTop: 10,
     padding: 10,
-    justifyContent: "center",
     width: "100%",
   },
   selectImageText: {

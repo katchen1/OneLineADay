@@ -23,7 +23,6 @@ class HomeScreen extends React.Component {
     this.userRef = doc(db, "users", user.uid);
     let docSnap = await getDoc(this.userRef);
     if (docSnap.exists) {
-      // Convert Firestore datetime to javascript date
       let user = docSnap.data();
       this.setState({ user: user, isLoading: false });
       this.filterEntries();
@@ -58,33 +57,42 @@ class HomeScreen extends React.Component {
     if (newEntry == null) {
       // Delete an entry
       let i = this.state.user.entries.indexOf(this.state.filteredEntries[index]);
+      if (oldEntry.image != "") {
+        oldEntry.image = "https://picsum.photos/300/200"; 
+      }
       await updateDoc(this.userRef, {
         entries: arrayRemove(oldEntry)
       });
       delete this.state.user.entries[i];
       Toast.show("Entry deleted");
-    } else if (index == -1) {
-      // Create a new entry
-      let temp = newEntry.image;
-      newEntry.image = "https://picsum.photos/300/200";
-      await updateDoc(this.userRef, {
-        entries: arrayUnion(newEntry)
-      });
-      newEntry.image = temp;
-      this.state.user.entries.push(newEntry);
-      Toast.show("Entry created");
     } else {
-      // Update an existing entry
+      // NOTE: Ideally, we want upload user's images to Firebase Storage, but
+      // the quota has been exceeded for this project. We need to pay to upgrade.
+      // So we resort to updating the images locally without data persistence.
       let temp = newEntry.image;
-      newEntry.image = oldEntry.image;
-      await updateDoc(this.userRef, {
-        entries: arrayRemove(oldEntry)
-      });
-      await updateDoc(this.userRef, {
-        entries: arrayUnion(newEntry)
-      });
-      newEntry.image = temp;
-      Toast.show("Entry updated");
+      if (newEntry.image != "") {
+        newEntry.image = "https://picsum.photos/300/200";
+      }
+      if (index == -1) {
+        // Create a new entry
+        await updateDoc(this.userRef, {
+          entries: arrayUnion(newEntry)
+        });
+        newEntry.image = temp;
+        this.state.user.entries.push(newEntry);
+        Toast.show("Entry created");
+      } else {
+        // Update an existing entry
+        await updateDoc(this.userRef, {
+          entries: arrayRemove(oldEntry)
+        });
+        await updateDoc(this.userRef, {
+          entries: arrayUnion(newEntry)
+        });
+        newEntry.image = temp;
+        console.log(newEntry);
+        Toast.show("Entry updated");
+      }
     }
     this.filterEntries();
   }

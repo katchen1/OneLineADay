@@ -105,10 +105,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#305DBF",
     borderRadius: 10,
     height: 80,
+    justifyContent: "center",
     marginHorizontal: 10,
     marginVertical: 5,
     padding: 10,
-    justifyContent: "center",
   },
   saveText: {
     alignSelf: "center",
