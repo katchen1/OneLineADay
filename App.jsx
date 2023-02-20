@@ -9,6 +9,7 @@ import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
 import FriendActivityScreen from "./screens/FriendActivity";
 import HomeScreen from "./screens/Home";
+import NewEntryScreen from "./screens/NewEntry";
 import SettingsScreen from "./screens/Settings";
 import SignInScreen from "./screens/SignIn";
 import SignUpScreen from "./screens/SignUp";
@@ -34,6 +35,15 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     );
+  }
+
+  const HomeStack = () => {
+    return (
+      <Stack.Navigator initialRouteName="Home Screen">
+        <Stack.Screen name="Home Screen" component={HomeScreen} />
+        <Stack.Screen name="New Entry" component={NewEntryScreen} />
+      </Stack.Navigator>
+    )
   }
 
   return (
@@ -63,7 +73,7 @@ export default function App() {
           },
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
         <Tab.Screen name="Analytics" component={AnalyticsScreen} />
         <Tab.Screen name="Friend Activity" component={FriendActivityScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />

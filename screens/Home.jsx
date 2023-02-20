@@ -6,21 +6,24 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import CalendarPicker from 'react-native-calendar-picker';
 import Modal from "react-native-modal";
+import Toast from "react-native-root-toast";
 import Entry from "../components/Entry";
 import { auth, db } from "../firebaseConfig";
+
 
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.navigation = props.navigation;
-    this.state = { user: {}, selectedDate: moment(), isCalendarVisible: false, isLoading : true };
+    this.state = { user: {}, entries: [], selectedDate: moment(), isCalendarVisible: false, isLoading : true };
+    this.toast = null;
   }
   
   // Query user data
   queryUser = async (user) => {
     let docSnap = await getDoc(doc(db, "users", user.uid));
     if (docSnap.exists) {
-      this.setState({ user: docSnap.data(), isLoading: false });
+      this.setState({ user: docSnap.data(), entries: docSnap.data().entries, isLoading: false });
     }
   }
 
@@ -44,9 +47,18 @@ class HomeScreen extends React.Component {
     this.setState({ selectedDate: this.state.selectedDate.add(1, 'days')});
   }
 
+  // Update entry
+  updateEntry = (entry) => {
+    this.setState({entries: this.state.entries.concat(entry)});
+    Toast.show("Entry updated");
+  }
+
   // Add a journal entry
   createOnPress = () => {
-    console.log("create on press");
+    this.navigation.navigate("New Entry", {
+      entry: {text: "", date: moment(this.state.selectedDate)}, 
+      onReturn: (entry) => this.updateEntry(entry),
+    });
   }
 
   // Invoked immediately after the component is mounted  
@@ -69,7 +81,7 @@ class HomeScreen extends React.Component {
 
     // Filter entries of the selected date
     let selectedDateString = this.state.selectedDate.format("MMMM D");
-    let filteredEntries = this.state.user.entries.filter( entry => {
+    let filteredEntries = this.state.entries.filter( entry => {
       let entryDateString = moment(entry.date.toDate()).format("MMMM D");
       return entryDateString == selectedDateString;
     });
@@ -87,7 +99,7 @@ class HomeScreen extends React.Component {
     )
 
     return <View style={styles.container}>
-      <ScrollView>
+      <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Ionicons name="arrow-back" size={28} onPress={this.previousDay} />
           <Text style={styles.dateText}>{selectedDateString}</Text>
@@ -124,7 +136,7 @@ class HomeScreen extends React.Component {
           selectedDayColor="#305DBF"
           selectedDayTextColor="#FFFFFF"
         />
-      </Modal>   
+      </Modal>
     </View>; 
   }
 }
@@ -173,5 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginHorizontal: 10,
     marginVertical: 200,
+  },
+  scrollView: {
+    height: "100%",
   },
 });
