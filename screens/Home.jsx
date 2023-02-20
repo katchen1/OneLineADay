@@ -89,7 +89,7 @@ class HomeScreen extends React.Component {
       let entryDateString = moment(entry.date, "YYYY-MM-DD").format("MMMM D");
       return entryDateString == selectedDateString;
     }).sort((entry1, entry2) => {
-      return entry2.date - entry1.date;
+      return moment(entry2.date, "YYYY-MM-DD") - moment(entry1.date, "YYYY-MM-DD");
     })});
   }
 

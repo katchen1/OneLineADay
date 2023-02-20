@@ -1,13 +1,15 @@
+import * as ImagePicker from 'expo-image-picker';
 import moment from "moment";
 import React from "react";
-import { Image, LogBox, StyleSheet, Text, View } from "react-native";
+import { Image, LogBox, Pressable, StyleSheet, Text, View } from "react-native";
 import { AutoGrowingTextInput } from "react-native-autogrow-textinput";
+
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 
-const EntryEditable = ({entry, text, setText}) => {
+const EntryEditable = ({entry, text, setText, image, setImage}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
   
   // Calculate years ago
@@ -21,6 +23,20 @@ const EntryEditable = ({entry, text, setText}) => {
     yearsAgoText = yearsAgo + " Years Ago";
   }
 
+  // First step is to put an image in Firebase Storage, 
+  // then get link of the image from there and save it to Cloud Firestore. 
+  const selectImageOnPress = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.entryHeader}>
@@ -33,7 +49,10 @@ const EntryEditable = ({entry, text, setText}) => {
         onChangeText={setText}
         value={text}
       />
-      <Image style={styles.entryImage} source={{ uri: "https://picsum.photos/300/200" }} />
+      {image && <Image source={{ uri: image }} style={styles.entryImage} />}
+      <Pressable style={styles.selectImageButton} onPress={selectImageOnPress}>
+        <Text style={styles.selectImageText}>Select Image</Text>
+      </Pressable>
     </View>
   );
 }
@@ -83,5 +102,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "300",
     marginBottom: 10,
+  },
+  selectImageButton: {
+    backgroundColor: "#305DBF",
+    borderRadius: 10,
+    height: 80,
+    marginTop: 10,
+    padding: 10,
+    justifyContent: "center",
+    width: "100%",
+  },
+  selectImageText: {
+    alignSelf: "center",
+    color: "white",
+    fontSize: 20,
+    fontWeight: "500",
+    margin: 5,
   },
 });

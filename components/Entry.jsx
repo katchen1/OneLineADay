@@ -32,7 +32,7 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
           <Text style={styles.entrySubtitle}>{ year }</Text>
         </View>
         <Text style={styles.entryText}>{ entry.text }</Text>
-        <Image style={styles.entryImage} source={{ uri: "https://picsum.photos/300/200" }} />
+        {entry.image && <Image style={styles.entryImage} source={{ uri: entry.image }} />}
       </View>
     </Pressable>
   );
