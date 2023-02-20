@@ -1,13 +1,13 @@
+import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-const Entry = ({entry}) => {
-  // Convert Firestore datetime to javascript date
-  let year = entry.date.toDate().getFullYear();
+const Entry = ({entry, navigation, index, updateEntry}) => {
+  let year = moment(entry.date).year();
   
   // Calculate years ago
   let yearsAgoText = "";
-  let yearsAgo = new Date().getFullYear() - year;
+  let yearsAgo = moment().year() - year;
   if (yearsAgo == 0) {
     yearsAgoText = "This Year";
   } else if (yearsAgo == 1) {
@@ -19,7 +19,10 @@ const Entry = ({entry}) => {
   return (
     <Pressable
       onPress={() => {
-        console.log("Entry pressed")
+        navigation.navigate("New Entry", {
+          entry: entry,
+          onReturn: (newEntry) => updateEntry(newEntry, index),
+        });
       }}
     >
       <View style={styles.container}>

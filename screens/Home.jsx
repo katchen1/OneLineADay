@@ -15,7 +15,7 @@ class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.navigation = props.navigation;
-    this.state = { user: {}, entries: [], selectedDate: moment(), isCalendarVisible: false, isLoading : true };
+    this.state = { user: {}, filteredEntries: [], selectedDate: moment(), isCalendarVisible: false, isLoading : true };
     this.toast = null;
   }
   
@@ -23,7 +23,14 @@ class HomeScreen extends React.Component {
   queryUser = async (user) => {
     let docSnap = await getDoc(doc(db, "users", user.uid));
     if (docSnap.exists) {
-      this.setState({ user: docSnap.data(), entries: docSnap.data().entries, isLoading: false });
+      // Convert Firestore datetime to javascript date
+      let user = docSnap.data();
+      user.entries = user.entries.map((entry, _) => {
+        entry.date = moment(entry.date.toDate());
+        return entry;
+      });
+      this.setState({ user: user, isLoading: false });
+      this.filterEntries();
     }
   }
 
@@ -34,30 +41,49 @@ class HomeScreen extends React.Component {
 
   // Callback of selecting a date in the calendar
   onDateChange = (date) => {
-    this.setState({ selectedDate: date });
+    this.setState({ selectedDate: moment(date) });
   }
 
   // Go to the previous day
   previousDay = () => {
     this.setState({ selectedDate: this.state.selectedDate.subtract(1, 'days')});
+    this.filterEntries();
   }
 
   // Go to the next day
   nextDay = () => {
     this.setState({ selectedDate: this.state.selectedDate.add(1, 'days')});
+    this.filterEntries();
   }
 
   // Update entry
-  updateEntry = (entry) => {
-    this.setState({entries: this.state.entries.concat(entry)});
-    Toast.show("Entry updated");
+  updateEntry = (newEntry, index) => {
+    if (index == -1) {
+      this.state.user.entries.push(newEntry);
+      Toast.show("Entry created");
+    } else {
+      this.state.filteredEntries[index] = newEntry;
+      Toast.show("Entry updated");
+    }
+    this.filterEntries();
+  }
+
+  // Filter entries of the selected date
+  filterEntries = () => {
+    let selectedDateString = this.state.selectedDate.format("MMMM D");
+    this.setState({filteredEntries: this.state.user.entries.filter(entry => {
+      let entryDateString = moment(entry.date).format("MMMM D");
+      return entryDateString == selectedDateString;
+    }).sort((entry1, entry2) => {
+      return entry2.date - entry1.date;
+    })});
   }
 
   // Add a journal entry
   createOnPress = () => {
     this.navigation.navigate("New Entry", {
-      entry: {text: "", date: moment(this.state.selectedDate)}, 
-      onReturn: (entry) => this.updateEntry(entry),
+      entry: {text: "", date: this.state.selectedDate}, 
+      onReturn: (newEntry) => this.updateEntry(newEntry, -1),
     });
   }
 
@@ -79,18 +105,13 @@ class HomeScreen extends React.Component {
       return <Text>Loading...</Text>
     }
 
-    // Filter entries of the selected date
-    let selectedDateString = this.state.selectedDate.format("MMMM D");
-    let filteredEntries = this.state.entries.filter( entry => {
-      let entryDateString = moment(entry.date.toDate()).format("MMMM D");
-      return entryDateString == selectedDateString;
-    });
+    let selectedDateString = this.state.selectedDate.format("MMMM D"); 
     
     // Allow new entry only if the user does not have an entry for this day this year
     let allowNewEntry = true;
-    filteredEntries.forEach(
+    this.state.filteredEntries.forEach(
       function(entry) {
-        let entryYear = moment(entry.date.toDate()).format("YYYY");
+        let entryYear = moment(entry.date).format("YYYY");
         let thisYear = moment().format("YYYY");
         if (entryYear == thisYear) {
           allowNewEntry = false;
@@ -115,8 +136,8 @@ class HomeScreen extends React.Component {
         
         {
           // List of the user's entry of the selected date
-          filteredEntries.map((entry, index) => {
-            return <Entry key={index} entry={entry} />;
+          this.state.filteredEntries.map((entry, index) => {
+            return <Entry key={index} entry={entry} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
           })
         }
       </ScrollView>

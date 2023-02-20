@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import moment from "moment";
 import React from "react";
 import { LogBox, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import EntryEditable from "../components/EntryEditable";
@@ -12,14 +13,16 @@ class NewEntryScreen extends React.Component {
     super(props);
     this.navigation = props.navigation;
     this.entry = props.route.params.entry;
+    this.index = props.route.params.index;
     this.onReturn = props.route.params.onReturn;
     this.state = {text: this.entry.text};
+    this.entry.date = moment(this.entry.date);
   }
   
   // Save entry
   saveOnPress = () => {
     this.entry.text = this.state.text;
-    this.onReturn(this.entry);
+    this.onReturn(this.entry, this.index);
     this.navigation.goBack();
   }
 
