@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import React from "react";
@@ -13,16 +14,29 @@ class NewEntryScreen extends React.Component {
     super(props);
     this.navigation = props.navigation;
     this.entry = props.route.params.entry;
-    this.index = props.route.params.index;
+    this.editing = props.route.params.editing;
     this.onReturn = props.route.params.onReturn;
     this.state = {text: this.entry.text};
     this.entry.date = moment(this.entry.date);
+    if (this.editing) {
+      // Editing an existing entry
+      this.navigation.setOptions({ 
+        title: "Edit Entry",
+        headerRight: () => (<Ionicons style={styles.deleteButton} name="trash" size={28} onPress={this.deleteOnPress} />)
+      });
+    }
   }
   
   // Save entry
   saveOnPress = () => {
     this.entry.text = this.state.text;
-    this.onReturn(this.entry, this.index);
+    this.onReturn(this.entry);
+    this.navigation.goBack();
+  }
+
+  // Delete entry
+  deleteOnPress = () => {
+    this.onReturn(null);
     this.navigation.goBack();
   }
 
@@ -81,6 +95,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "500",
     margin: 15,
+  },
+  deleteButton: {
+    marginRight: 10,
   },
   saveButton: {
     backgroundColor: "#305DBF",

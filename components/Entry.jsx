@@ -21,6 +21,7 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
       onPress={() => {
         navigation.navigate("New Entry", {
           entry: entry,
+          editing: true,
           onReturn: (newEntry) => updateEntry(newEntry, index),
         });
       }}

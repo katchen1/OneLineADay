@@ -58,7 +58,11 @@ class HomeScreen extends React.Component {
 
   // Update entry
   updateEntry = (newEntry, index) => {
-    if (index == -1) {
+    if (newEntry == null) {
+      let i = this.state.user.entries.indexOf(this.state.filteredEntries[index]);
+      delete this.state.user.entries[i];
+      Toast.show("Entry deleted");
+    } else if (index == -1) {
       this.state.user.entries.push(newEntry);
       Toast.show("Entry created");
     } else {
@@ -83,6 +87,7 @@ class HomeScreen extends React.Component {
   createOnPress = () => {
     this.navigation.navigate("New Entry", {
       entry: {text: "", date: this.state.selectedDate}, 
+      editing: false,
       onReturn: (newEntry) => this.updateEntry(newEntry, -1),
     });
   }
