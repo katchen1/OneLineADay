@@ -3,6 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Sentiment from 'sentiment';
 import EntryEditable from "../components/EntryEditable";
 
 
@@ -22,12 +23,14 @@ class NewEntryScreen extends React.Component {
       });
     }
     this.oldEntry = JSON.parse(JSON.stringify(this.entry));
+    this.sentiment = new Sentiment();
   }
   
   // Save entry
   saveOnPress = () => {
     this.entry.image = this.state.image;
     this.entry.text = this.state.text;
+    this.entry.sentimentScore = this.sentiment.analyze(this.entry.text).score;
     this.onReturn(this.oldEntry, this.entry);
     this.navigation.goBack();
   }
