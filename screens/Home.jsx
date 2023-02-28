@@ -90,7 +90,6 @@ class HomeScreen extends React.Component {
           entries: arrayUnion(newEntry)
         });
         newEntry.image = temp;
-        console.log(newEntry);
         Toast.show("Entry updated");
       }
     }

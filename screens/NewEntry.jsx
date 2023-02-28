@@ -3,6 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Sentiment from 'sentiment';
 import EntryEditable from "../components/EntryEditable";
 
 
@@ -22,14 +23,31 @@ class NewEntryScreen extends React.Component {
       });
     }
     this.oldEntry = JSON.parse(JSON.stringify(this.entry));
+    this.sentiment = new Sentiment();
   }
   
   // Save entry
   saveOnPress = () => {
     this.entry.image = this.state.image;
     this.entry.text = this.state.text;
-    this.onReturn(this.oldEntry, this.entry);
-    this.navigation.goBack();
+    this.entry.sentimentScore = this.sentiment.analyze(this.entry.text).score;
+
+    // Named entity recognition
+    const MonkeyLearn = require("monkeylearn");
+    const ml = new MonkeyLearn('e813f344cbd67a7ffd61e8a94f3f9ef347d06a87');
+    let model_id = 'ex_isnnZRbS';
+    let data = [this.entry.text];
+    ml.extractors.extract(model_id, data).then(res => {
+      let extractions = res.body[0].extractions;
+      for (i in extractions) {
+        delete extractions[i]["count"];
+        delete extractions[i]["parsed_value"];
+        delete extractions[i]["positions_in_text"];
+      }
+      this.entry.extractions = {...extractions};
+      this.onReturn(this.oldEntry, this.entry);
+      this.navigation.goBack();
+    });
   }
 
   // Delete entry
