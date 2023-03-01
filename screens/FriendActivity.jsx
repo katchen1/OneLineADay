@@ -1,9 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-//export default function FriendActivityScreen() {
-//return <View></View>;
-//}
-
 const SocialTab = () => {
   const handleOptIn = () => {
     console.log("User clicked the opt-in button");
@@ -59,6 +55,7 @@ const styles = StyleSheet.create({
     paddingRight: 50,
     paddingLeft: 50,
     paddingBottom: 15,
+    textAlign: "center",
   },
 });
 
