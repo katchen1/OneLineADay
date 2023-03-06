@@ -1,3 +1,4 @@
+import HighlightText from "@sanar/react-native-highlight-text";
 import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -16,6 +17,12 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
     yearsAgoText = yearsAgo + " Years Ago";
   }
 
+  // Named entities to be highlighted
+  let searchWords = [];
+  for (i in entry.extractions) {
+    searchWords.push(entry.extractions[i]["extracted_text"]);
+  }
+
   return (
     <Pressable
       onPress={() => {
@@ -31,7 +38,11 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
           <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
           <Text style={styles.entrySubtitle}>{ year }</Text>
         </View>
-        <Text style={styles.entryText}>{ entry.text }</Text>
+        <HighlightText
+          highlightStyle={styles.highlight}
+          searchWords={searchWords}
+          textToHighlight={entry.text}
+        />
         {entry.image && <Image style={styles.entryImage} source={{ uri: entry.image }} />}
       </View>
     </Pressable>
@@ -77,5 +88,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     marginRight: 5,
+  },
+  highlight: {
+    backgroundColor: "yellow",
   },
 });
