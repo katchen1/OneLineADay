@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { doc, getDoc } from "firebase/firestore";
+import moment from "moment";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
@@ -13,12 +14,7 @@ class AnalyticsScreen extends React.Component {
   constructor(props) {
     super(props);
     this.navigation = props.navigation;
-    this.state = { 
-      user: {},
-      isLoading : true,
-      sentimentByDate: {}, 
-      entityCounts: {} ,
-    };
+    this.state = { user: {}, isLoading : true };
   }
 
   // Toggle the calendar datepicker on or off
@@ -28,17 +24,20 @@ class AnalyticsScreen extends React.Component {
 
   // Get sentiment for showing trend
   getSentiment = () => {
-    // Sort entries by date
-    let sortedEntries = this.state.user.entries.sort(function(a, b) {
-      let aDate = a["date"], bDate = b["date"];
-      return ((aDate < bDate)? -1: ((aDate > bDate)? 1: 0));
+    // Initialize all points to neutral sentiment
+    let output = {}
+    for (let i = 14; i >= 0; i--) {
+      output[i] = 0;
+    }
+    // Get sentiment scores from the past 2 weeks
+    this.state.user.entries.forEach(function(entry) {
+      let entryDate = moment(entry["date"], 'YYYY-MM-DD');
+      let daysAgo = moment().diff(entryDate, "days");
+      if (daysAgo <= 14) {
+        output[daysAgo] = entry["sentimentScore"];
+      }
     });
-    // Store date-sentiment pairs in the state
-    let sentimentByDate = {};
-    sortedEntries.forEach(function(entry) {
-      sentimentByDate[entry["date"]] = entry["sentimentScore"];
-    });
-    this.setState({ sentimentByDate: sentimentByDate });
+    return output;
   }
 
   // Get named entities and counts for bar charts
@@ -53,7 +52,7 @@ class AnalyticsScreen extends React.Component {
         entityCounts[tag][word] += 1;
       });
     });
-    this.setState({ entityCounts: entityCounts });
+    return entityCounts;
   }
   
   // Query user data
@@ -62,9 +61,7 @@ class AnalyticsScreen extends React.Component {
     let docSnap = await getDoc(this.userRef);
     if (docSnap.exists) {
       let user = docSnap.data();
-      this.setState({ user: user });
-      this.getSentiment();
-      this.getNamedEntities();
+      this.setState({ user: user, isLoading: false });
       this.setState({ isLoading: false });
     }
   }
@@ -87,55 +84,49 @@ class AnalyticsScreen extends React.Component {
       return <Text>Loading...</Text>
     }
 
+    // Line chart
+    let dateToSentiment = this.getSentiment();
+    let lineChartLabels = [...Object.keys(dateToSentiment)].reverse(); 
+    let lineChartData = [...Object.values(dateToSentiment)].reverse();
+    let range = Math.max(Math.abs(Math.min(...lineChartData)), Math.abs(Math.max(...lineChartData)));
+
     return <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
+        <View style={styles.chart}>
+          <Text style={styles.chartTitle}>Sentiment Trend</Text>
+          <Ionicons style={styles.sentimentIcon} name="happy" size={20} color="green" />
+          <LineChart
+            data={{
+              labels: lineChartLabels,
+              datasets: [{data: lineChartData}, { data: [-1 * range, range], color: () => 'transparent'} ]
+            }}
+            width={Dimensions.get("window").width - 10} // from react-native
+            height={200}
+            padding={10}
+            yAxisInterval={1} // optional, defaults to 1
+            chartConfig={{
+              backgroundColor: "white",
+              backgroundGradientFrom: "white",
+              backgroundGradientTo: "white",
+              decimalPlaces: 0, // optional, defaults to 2dp
+              fillShadowGradientFrom: "transparent",
+              fillShadowGradientFromOpacity: 0,
+              fillShadowGradientTo: "transparent",
+              fillShadowGradientToOpacity: 0,
+              color: () => "#305DBF",
+              labelColor: () => "gray",
+              propsForDots: {r: "5"},
+            }}
+            bezier
+            style={{
+              borderRadius: 10,
+              paddingRight: 35,
+            }}
+          />
+          <Ionicons style={styles.sentimentIcon} name="sad" size={20} color="red" />
+          <Text style={styles.axisTitle}>Days Ago</Text>
+        </View>
         
-
-  <Text>Sentiment Trend</Text>
-  <LineChart
-    data={{
-      labels: ["January", "February", "March", "April", "May", "June"],
-      datasets: [
-        {
-          data: [
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100
-          ]
-        }
-      ]
-    }}
-    width={Dimensions.get("window").width} // from react-native
-    height={220}
-    yAxisLabel="$"
-    yAxisSuffix="k"
-    yAxisInterval={1} // optional, defaults to 1
-    chartConfig={{
-      backgroundColor: "#e26a00",
-      backgroundGradientFrom: "#fb8c00",
-      backgroundGradientTo: "#ffa726",
-      decimalPlaces: 2, // optional, defaults to 2dp
-      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      style: {
-        borderRadius: 16
-      },
-      propsForDots: {
-        r: "6",
-        strokeWidth: "2",
-        stroke: "#ffa726"
-      }
-    }}
-    bezier
-    style={{
-      marginVertical: 8,
-      borderRadius: 16
-    }}
-  />
-
       </ScrollView>
     </View>; 
   }
@@ -189,4 +180,24 @@ const styles = StyleSheet.create({
   scrollView: {
     height: "100%",
   },
+  chart: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    margin: 5,
+    paddingBottom: 10,
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: "500",
+    margin: 5,
+    padding: 5,
+  },
+  sentimentIcon: {
+    marginLeft: 10,
+  },
+  axisTitle: {
+    fontSize: 12,
+    alignSelf: "center",
+    color: "gray",
+  }
 });
