@@ -4,9 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-import {
-  LineChart
-} from "react-native-chart-kit";
+import { BarChart, LineChart } from "react-native-chart-kit";
 import { auth, db } from "../firebaseConfig";
 
 
@@ -85,10 +83,19 @@ class AnalyticsScreen extends React.Component {
     }
 
     // Line chart
-    let dateToSentiment = this.getSentiment();
-    let lineChartLabels = [...Object.keys(dateToSentiment)].reverse(); 
-    let lineChartData = [...Object.values(dateToSentiment)].reverse();
+    let daysAgoToSentiment = this.getSentiment();
+    let lineChartLabels = [...Object.keys(daysAgoToSentiment)].reverse(); 
+    let lineChartData = [...Object.values(daysAgoToSentiment)].reverse();
     let range = Math.max(Math.abs(Math.min(...lineChartData)), Math.abs(Math.max(...lineChartData)));
+
+    // Bar charts
+    let entityCounts = this.getNamedEntities();
+    let personLabels = [...Object.keys(entityCounts["person"])];
+    let personData = [...Object.values(entityCounts["person"])];
+    let locationLabels = [...Object.keys(entityCounts["location"])];
+    let locationData = [...Object.values(entityCounts["location"])];
+    let companyLabels = [...Object.keys(entityCounts["company"])];
+    let companyData = [...Object.values(entityCounts["company"])];
 
     return <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -126,7 +133,108 @@ class AnalyticsScreen extends React.Component {
           <Ionicons style={styles.sentimentIcon} name="sad" size={20} color="red" />
           <Text style={styles.axisTitle}>Days Ago</Text>
         </View>
-        
+
+
+        <View style={styles.chart}>
+          <Text style={styles.chartTitle}>Places Mentioned</Text>
+          <BarChart
+            data={{
+              labels: locationLabels,
+              datasets: [{data: locationData}],
+            }}
+            yAxisInterval={1}
+            fromZero
+            showValuesOnTopOfBars
+            width={Dimensions.get("window").width - 10} // from react-native
+            height={200}
+            chartConfig={{
+              backgroundColor: "white",
+              backgroundGradientFrom: "white",
+              backgroundGradientTo: "white",
+              fillShadowGradientFrom: "#305DBF",
+              fillShadowGradientTo: "#305DBF",
+              fillShadowGradientFromOpacity: 1,
+              fillShadowGradientToOpacity: 1,
+              decimalPlaces: 1, // optional, defaults to 2dp
+              color: () => "#305DBF",
+              labelColor: () => "gray",
+              propsForDots: {r: "5"},
+            }}
+            verticalLabelRotation={0}
+            style={{
+              borderRadius: 10,
+              paddingRight: 40,
+            }}
+          />
+        </View>
+
+
+        <View style={styles.chart}>
+          <Text style={styles.chartTitle}>People Mentioned</Text>
+          <BarChart
+            data={{
+              labels: personLabels,
+              datasets: [{data: personData}],
+            }}
+            yAxisInterval={1}
+            fromZero
+            showValuesOnTopOfBars
+            width={Dimensions.get("window").width - 10} // from react-native
+            height={200}
+            chartConfig={{
+              backgroundColor: "white",
+              backgroundGradientFrom: "white",
+              backgroundGradientTo: "white",
+              fillShadowGradientFrom: "#305DBF",
+              fillShadowGradientTo: "#305DBF",
+              fillShadowGradientFromOpacity: 1,
+              fillShadowGradientToOpacity: 1,
+              decimalPlaces: 1, // optional, defaults to 2dp
+              color: () => "#305DBF",
+              labelColor: () => "gray",
+              propsForDots: {r: "5"},
+            }}
+            verticalLabelRotation={0}
+            style={{
+              borderRadius: 10,
+              paddingRight: 40,
+            }}
+          />
+        </View>
+
+
+        <View style={styles.chart}>
+          <Text style={styles.chartTitle}>Companies Mentioned</Text>
+          <BarChart
+            data={{
+              labels: companyLabels,
+              datasets: [{data: companyData}],
+            }}
+            yAxisInterval={1}
+            fromZero
+            showValuesOnTopOfBars
+            width={Dimensions.get("window").width - 10} // from react-native
+            height={200}
+            chartConfig={{
+              backgroundColor: "white",
+              backgroundGradientFrom: "white",
+              backgroundGradientTo: "white",
+              fillShadowGradientFrom: "#305DBF",
+              fillShadowGradientTo: "#305DBF",
+              fillShadowGradientFromOpacity: 1,
+              fillShadowGradientToOpacity: 1,
+              decimalPlaces: 1, // optional, defaults to 2dp
+              color: () => "#305DBF",
+              labelColor: () => "gray",
+              propsForDots: {r: "5"},
+            }}
+            verticalLabelRotation={0}
+            style={{
+              borderRadius: 10,
+              paddingRight: 40,
+            }}
+          />
+        </View>
       </ScrollView>
     </View>; 
   }
