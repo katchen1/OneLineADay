@@ -10,6 +10,7 @@ import { LogBox } from "react-native";
 import colors from "tailwindcss/colors";
 import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
+import DeleteAccountScreen from "./screens/DeleteAccount";
 import FriendActivityScreen from "./screens/FriendActivity";
 import HomeScreen from "./screens/Home";
 import NewEntryScreen from "./screens/NewEntry";
@@ -127,6 +128,7 @@ export default function App() {
           name="Notifications"
           component={NotificationsSettingsScreen}
         />
+        <Stack.Screen name="Delete Account" component={DeleteAccountScreen} />
       </Stack.Navigator>
     );
   };
