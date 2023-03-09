@@ -1,73 +1,74 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Pressable, Switch, Text, View } from "react-native";
-import { auth, db } from "../firebaseConfig";
 
 export default function NotificationsSettingsScreen() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [notificationTime, setNotificationTime] = useState([12, 0]);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(null);
+  const [notificationTime, setNotificationTime] = useState(null);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        const { data } = await getDoc(userRef);
-        switch (data.notificationsEnabled) {
-          case undefined:
-            await updateDoc(userRef, "notificationsEnabled", true);
-            setNotificationsEnabled(true);
-            break;
-          case true:
-            setNotificationsEnabled(true);
-            break;
-          case false:
-            setNotificationsEnabled(false);
-            break;
-        }
-      } catch (error) {
-        console.error(error);
+  useEffect(function () {
+    (async function () {
+      const storedNotificationsEnabled = await AsyncStorage.getItem(
+        "notificationsEnabled"
+      );
+
+      if (storedNotificationsEnabled === null) {
+        await AsyncStorage.setItem(
+          "notificationsEnabled",
+          JSON.stringify(false)
+        );
+        setNotificationsEnabled(false);
         return;
       }
 
+      setNotificationsEnabled(JSON.parse(storedNotificationsEnabled));
+    })();
+
+    (async function () {
       const storedNotificationTime = await AsyncStorage.getItem(
         "notificationTime"
       );
+
       if (storedNotificationTime === null) {
-        await AsyncStorage.setItem("notificationTime", JSON.stringify([12, 0]));
-        setNotificationTime([12, 0]);
-      } else {
-        setNotificationTime(JSON.parse(storedNotificationTime));
+        await AsyncStorage.setItem(
+          "notificationTime",
+          JSON.stringify(new Date(2000, 0, 1, 12, 0))
+        );
+        setNotificationTime(new Date(2000, 0, 1, 12, 0));
+        return;
       }
 
-      setIsLoading(false);
+      setNotificationTime(new Date(JSON.parse(storedNotificationTime)));
     })();
   }, []);
 
   async function toggleNotifications() {
-    try {
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userRef, "notificationsEnabled", !notificationsEnabled);
-      setNotificationsEnabled(!notificationsEnabled);
-    } catch (error) {
-      console.error(error);
-    }
+    await AsyncStorage.setItem(
+      "notificationsEnabled",
+      JSON.stringify(!notificationsEnabled)
+    );
+    setNotificationsEnabled(!notificationsEnabled);
   }
 
-  async function handleTimePickerChange(_event, selectedTime) {
+  function handleTimePickerOpen() {
+    if (!notificationsEnabled) return;
+
+    setShowTimePicker(true);
+  }
+
+  async function handleTimePickerChange(_, selectedTime) {
     await AsyncStorage.setItem(
       "notificationTime",
-      JSON.stringify([selectedTime.getHours(), selectedTime.getMinutes()])
+      JSON.stringify(selectedTime)
     );
     setShowTimePicker(false);
-    setNotificationTime([selectedTime.getHours(), selectedTime.getMinutes()]);
+    setNotificationTime(selectedTime);
   }
 
-  if (isLoading) {
-    return <Text>Loading...</Text>;
+  if (notificationsEnabled === null || notificationTime === null) {
+    return null;
   }
 
   return (
@@ -81,17 +82,18 @@ export default function NotificationsSettingsScreen() {
       </View>
       <Pressable
         className="flex h-16 flex-row items-center justify-between bg-white px-4"
-        onPress={() => setShowTimePicker(true)}
+        onPress={handleTimePickerOpen}
       >
         <Text className="text-lg">Journal reminder time</Text>
-        <Text className="text-lg text-gray-500">{`${
-          notificationTime[0]
-        }:${notificationTime[1].toString().padStart(2, "0")}`}</Text>
+        <Text className="text-lg text-gray-500">{`${notificationTime.getHours()}:${notificationTime
+          .getMinutes()
+          .toString()
+          .padStart(2, "0")}`}</Text>
       </Pressable>
       {showTimePicker ? (
         <DateTimePicker
           mode="time"
-          value={new Date(2000, 0, 1, notificationTime[0], notificationTime[1])}
+          value={notificationTime}
           onChange={handleTimePickerChange}
         />
       ) : null}
