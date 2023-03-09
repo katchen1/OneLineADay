@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
 import { Pressable, Switch, Text, View } from "react-native";
 
@@ -43,6 +44,34 @@ export default function NotificationsSettingsScreen() {
       setNotificationTime(new Date(JSON.parse(storedNotificationTime)));
     })();
   }, []);
+
+  useEffect(
+    function () {
+      (async function () {
+        if (notificationsEnabled === null || notificationTime === null) {
+          return;
+        }
+
+        if (!notificationsEnabled) {
+          await Notifications.cancelAllScheduledNotificationsAsync();
+          return;
+        }
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "It's time to journal.",
+            body: "Write your daily journal now.",
+          },
+          trigger: {
+            hour: notificationTime.getHours(),
+            minute: notificationTime.getMinutes(),
+            repeats: true,
+          },
+        });
+      })();
+    },
+    [notificationsEnabled, notificationTime]
+  );
 
   async function toggleNotifications() {
     await AsyncStorage.setItem(
