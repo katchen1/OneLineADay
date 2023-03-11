@@ -50,6 +50,18 @@ class AnalyticsScreen extends React.Component {
         entityCounts[tag][word] += 1;
       });
     });
+    for (tag in entityCounts) {
+      // Convert object to array of key-value pairs
+      entityCounts[tag] = Object.keys(entityCounts[tag]).map(function(word) {
+        return [word, entityCounts[tag][word]];
+      });
+      // Sort by count decreasing
+      entityCounts[tag].sort(function compare(a, b) {
+        return a[1] < b[1]? 1: (a[1] > b[1]? -1: 0);
+      });
+      // Get top 5
+      entityCounts[tag] = entityCounts[tag].slice(0, 5);
+    }
     return entityCounts;
   }
   
@@ -60,7 +72,6 @@ class AnalyticsScreen extends React.Component {
     if (docSnap.exists) {
       let user = docSnap.data();
       this.setState({ user: user, isLoading: false });
-      this.setState({ isLoading: false });
     }
   }
 
@@ -90,12 +101,12 @@ class AnalyticsScreen extends React.Component {
 
     // Bar charts
     let entityCounts = this.getNamedEntities();
-    let personLabels = [...Object.keys(entityCounts["person"])];
-    let personData = [...Object.values(entityCounts["person"])];
-    let locationLabels = [...Object.keys(entityCounts["location"])];
-    let locationData = [...Object.values(entityCounts["location"])];
-    let companyLabels = [...Object.keys(entityCounts["company"])];
-    let companyData = [...Object.values(entityCounts["company"])];
+    let personLabels = entityCounts["person"].map((elem) => elem[0]);
+    let personData = entityCounts["person"].map((elem) => elem[1]);
+    let locationLabels = entityCounts["location"].map((elem) => elem[0]);
+    let locationData = entityCounts["location"].map((elem) => elem[1]);
+    let companyLabels = entityCounts["company"].map((elem) => elem[0]);
+    let companyData = entityCounts["company"].map((elem) => elem[1]);
 
     return <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
