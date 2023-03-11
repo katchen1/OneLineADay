@@ -28,7 +28,7 @@ class ChartDetailsScreen extends React.Component {
   }
 
   ItemDivider = () => {
-    return <View style={styles.divider} />;
+    return <View style={styles.divider} />
   }
   
   render() {
@@ -57,20 +57,19 @@ export default function(props) {
 const styles = StyleSheet.create({
   agoText: {
     color: "gray",
-    fontWeight: "300",
     fontSize: 16,
+    fontWeight: "300",
   },
   countText: {
-    alignSelf: "flex-end",
-    fontWeight: "500",
-    fontSize: 20,
     alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "500",
   },
   divider: {
+    alignSelf: "center",
+    backgroundColor: "gray",
     height: 1,
     width: "90%",
-    backgroundColor: "gray",
-    alignSelf: "center",
   },
   item: {
     display: "flex",
@@ -80,8 +79,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   wordText: {
-    alignSelf: "flex-start",
-    fontWeight: "500",
     fontSize: 20,
+    fontWeight: "500",
   },
 });

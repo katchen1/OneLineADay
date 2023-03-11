@@ -18,6 +18,7 @@ class AnalyticsScreen extends React.Component {
     this.viewShotRef = React.createRef();
   }
 
+  // Take screenshot of the charts and share it
   shareOnPress = () => {
     this.viewShotRef.current.capture().then((uri) => {
       Sharing.shareAsync("file://" + uri);
@@ -116,6 +117,52 @@ class AnalyticsScreen extends React.Component {
     this.navigation.navigate("Chart Details", {title: "Companies", data: entityCounts["company"]});
   }
 
+  // Line chart for sentiment trend
+  SentimentChartRender = ({ labels, data, range }) => {
+    return <View style={styles.chartContainer}>
+      <View style={styles.chartHeader}>
+        <Text style={styles.chartTitle}>Sentiment Trend</Text>
+        <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.sentimentOnPress} />
+      </View>
+      <Ionicons style={styles.sentimentIcon} name="happy" size={20} color="green" />
+      <LineChart
+        data={{
+          labels: labels,
+          datasets: [{data: data}, { data: [-1 * range, range], color: () => 'transparent'} ]
+        }}
+        width={Dimensions.get("window").width - 10} // from react-native
+        height={200}
+        padding={10}
+        chartConfig={styles.sentimentChartConfig}
+        bezier
+        style={styles.chart}
+      />
+      <Ionicons style={styles.sentimentIcon} name="sad" size={20} color="red" />
+      <Text style={styles.chartAxisText}>Days Ago</Text>
+    </View>
+  }
+
+  // Bar charts for places/people/companies mentioned
+  BarChartRender = ({ labels, data, tag, onPress }) => {
+    return <View style={styles.chartContainer}>
+      <View style={styles.chartHeader}>
+        <Text style={styles.chartTitle}>{tag} Mentioned</Text>
+        <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={onPress} />
+      </View>
+      <BarChart
+        data={{ labels: labels, datasets: [{data: data}] }}
+        yAxisInterval={1}
+        fromZero
+        showValuesOnTopOfBars
+        width={Dimensions.get("window").width - 10} // from react-native
+        height={200}
+        chartConfig={styles.barChartConfig}
+        verticalLabelRotation={0}
+        style={styles.chart}
+      />
+    </View>
+  }
+
   // Invoked immediately after the component is mounted  
   async componentDidMount() {
     if (auth.currentUser) {
@@ -142,7 +189,7 @@ class AnalyticsScreen extends React.Component {
 
     // Bar charts
     let entityCounts = this.getNamedEntities();
-    for (tag in entityCounts) {
+    for (tag in entityCounts) { // Show only top 5 counts
       entityCounts[tag] = entityCounts[tag].slice(0, 5);
     }
     let personLabels = entityCounts["person"].map((elem) => elem[0]);
@@ -154,159 +201,11 @@ class AnalyticsScreen extends React.Component {
 
     return <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <ViewShot
-          style={styles.container}
-          ref={this.viewShotRef}
-          options={{format: 'jpg', quality: 0.9}}
-        >
-          <View style={styles.chart}>
-            <View style={styles.header}>
-              <Text style={styles.chartTitle}>Sentiment Trend</Text>
-              <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.sentimentOnPress} />
-            </View>
-            <Ionicons style={styles.sentimentIcon} name="happy" size={20} color="green" />
-            <LineChart
-              data={{
-                labels: lineChartLabels,
-                datasets: [{data: lineChartData}, { data: [-1 * range, range], color: () => 'transparent'} ]
-              }}
-              width={Dimensions.get("window").width - 10} // from react-native
-              height={200}
-              padding={10}
-              yAxisInterval={1} // optional, defaults to 1
-              chartConfig={{
-                backgroundColor: "white",
-                backgroundGradientFrom: "white",
-                backgroundGradientTo: "white",
-                decimalPlaces: 0, // optional, defaults to 2dp
-                fillShadowGradientFrom: "transparent",
-                fillShadowGradientFromOpacity: 0,
-                fillShadowGradientTo: "transparent",
-                fillShadowGradientToOpacity: 0,
-                color: () => "#305DBF",
-                labelColor: () => "gray",
-                propsForDots: {r: "5"},
-              }}
-              bezier
-              style={{
-                borderRadius: 10,
-                paddingRight: 35,
-              }}
-            />
-            <Ionicons style={styles.sentimentIcon} name="sad" size={20} color="red" />
-            <Text style={styles.axisTitle}>Days Ago</Text>
-          </View>
-
-
-          <View style={styles.chart}>
-            <View style={styles.header}>
-              <Text style={styles.chartTitle}>Places Mentioned</Text>
-              <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.placesOnPress} />
-            </View>
-            <BarChart
-              data={{
-                labels: locationLabels,
-                datasets: [{data: locationData}],
-              }}
-              yAxisInterval={1}
-              fromZero
-              showValuesOnTopOfBars
-              width={Dimensions.get("window").width - 10} // from react-native
-              height={200}
-              chartConfig={{
-                backgroundColor: "white",
-                backgroundGradientFrom: "white",
-                backgroundGradientTo: "white",
-                fillShadowGradientFrom: "#305DBF",
-                fillShadowGradientTo: "#305DBF",
-                fillShadowGradientFromOpacity: 1,
-                fillShadowGradientToOpacity: 1,
-                decimalPlaces: 1, // optional, defaults to 2dp
-                color: () => "#305DBF",
-                labelColor: () => "gray",
-                propsForDots: {r: "5"},
-              }}
-              verticalLabelRotation={0}
-              style={{
-                borderRadius: 10,
-                paddingRight: 40,
-              }}
-            />
-          </View>
-
-
-          <View style={styles.chart}>
-            <View style={styles.header}>
-              <Text style={styles.chartTitle}>People Mentioned</Text>
-              <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.peopleOnPress} />
-            </View>
-            <BarChart
-              data={{
-                labels: personLabels,
-                datasets: [{data: personData}],
-              }}
-              yAxisInterval={1}
-              fromZero
-              showValuesOnTopOfBars
-              width={Dimensions.get("window").width - 10} // from react-native
-              height={200}
-              chartConfig={{
-                backgroundColor: "white",
-                backgroundGradientFrom: "white",
-                backgroundGradientTo: "white",
-                fillShadowGradientFrom: "#305DBF",
-                fillShadowGradientTo: "#305DBF",
-                fillShadowGradientFromOpacity: 1,
-                fillShadowGradientToOpacity: 1,
-                decimalPlaces: 1, // optional, defaults to 2dp
-                color: () => "#305DBF",
-                labelColor: () => "gray",
-                propsForDots: {r: "5"},
-              }}
-              verticalLabelRotation={0}
-              style={{
-                borderRadius: 10,
-                paddingRight: 40,
-              }}
-            />
-          </View>
-
-
-          <View style={styles.chart}>
-            <View style={styles.header}>
-              <Text style={styles.chartTitle}>Companies Mentioned</Text>
-              <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.companiesOnPress} />
-            </View> 
-            <BarChart
-              data={{
-                labels: companyLabels,
-                datasets: [{data: companyData}],
-              }}
-              yAxisInterval={1}
-              fromZero
-              showValuesOnTopOfBars
-              width={Dimensions.get("window").width - 10} // from react-native
-              height={200}
-              chartConfig={{
-                backgroundColor: "white",
-                backgroundGradientFrom: "white",
-                backgroundGradientTo: "white",
-                fillShadowGradientFrom: "#305DBF",
-                fillShadowGradientTo: "#305DBF",
-                fillShadowGradientFromOpacity: 1,
-                fillShadowGradientToOpacity: 1,
-                decimalPlaces: 1, // optional, defaults to 2dp
-                color: () => "#305DBF",
-                labelColor: () => "gray",
-                propsForDots: {r: "5"},
-              }}
-              verticalLabelRotation={0}
-              style={{
-                borderRadius: 10,
-                paddingRight: 40,
-              }}
-            />
-          </View>
+        <ViewShot ref={this.viewShotRef} options={{format: "jpg", quality: 0.9}}>
+          <this.SentimentChartRender labels={lineChartLabels} data={lineChartData} range={range} />
+          <this.BarChartRender labels={locationLabels} data={locationData} tag={"Places"} onPress={this.placesOnPress} />
+          <this.BarChartRender labels={personLabels} data={personData} tag={"People"} onPress={this.peopleOnPress} />
+          <this.BarChartRender labels={companyLabels} data={companyData} tag={"Companies"} onPress={this.companiesOnPress} />
         </ViewShot>
       </ScrollView>
     </View>; 
@@ -320,52 +219,36 @@ export default function(props) {
 
 // Style sheet
 const styles = StyleSheet.create({
-  addButton: {
+  barChartConfig: {
+    backgroundGradientFrom: "white",
+    backgroundGradientTo: "white",
+    color: () => "#305DBF",
+    decimalPlaces: 1, // optional, defaults to 2dp
+    fillShadowGradientFromOpacity: 1,
+    fillShadowGradientToOpacity: 1,
+    labelColor: () => "gray",
+  },
+  chart: {
+    borderRadius: 10,
+    paddingRight: 40,
+  },
+  chartAxisText: {
+    alignSelf: "center",
+    color: "gray",
+    fontSize: 12,
+  },
+  chartContainer: {
     backgroundColor: "white",
     borderRadius: 10,
-    height: 80,
-    marginHorizontal: 10,
-    marginVertical: 5,
-    padding: 10,
-    justifyContent: "center",
-  },
-  container: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  createIcon: {
-    alignSelf: "center",
-  },
-  shareButton: {
-    marginRight: 10,
-  },
-  dateText: {
-    alignSelf: "center",
-    fontSize: 20,
-    fontWeight: "500",
     margin: 5,
+    paddingBottom: 10,
   },
-  header: {
+  chartHeader: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     marginHorizontal: 10,
     marginVertical: 10,
-  },
-  modal: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    marginHorizontal: 10,
-    marginVertical: 200,
-  },
-  scrollView: {
-    height: "100%",
-  },
-  chart: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    margin: 5,
-    paddingBottom: 10,
   },
   chartTitle: {
     fontSize: 18,
@@ -373,15 +256,30 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 5,
   },
-  sentimentIcon: {
-    marginLeft: 10,
-  },
-  axisTitle: {
-    fontSize: 12,
-    alignSelf: "center",
-    color: "gray",
+  container: {
+    display: "flex",
+    flexDirection: "column",
   },
   moreIcon: {
     alignSelf: "center",
-  }
+  },
+  scrollView: {
+    height: "100%",
+  },
+  sentimentChartConfig: {
+    backgroundGradientFrom: "white",
+    backgroundGradientTo: "white",
+    color: () => "#305DBF",
+    decimalPlaces: 0, // optional, defaults to 2dp
+    fillShadowGradientFromOpacity: 0,
+    fillShadowGradientToOpacity: 0,
+    labelColor: () => "gray",
+    propsForDots: {r: "5"},
+  },
+  sentimentIcon: {
+    marginLeft: 10,
+  },
+  shareButton: {
+    marginRight: 10,
+  },
 });
