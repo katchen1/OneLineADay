@@ -52,8 +52,8 @@ export default function App() {
 
   const AnalyticsStack = () => {
     return (
-      <Stack.Navigator initialRouteName="Analytics Screen">
-        <Stack.Screen name="Analytics Screen" component={AnalyticsScreen} />
+      <Stack.Navigator initialRouteName="Analytics">
+        <Stack.Screen name="Analytics" component={AnalyticsScreen} />
         <Stack.Screen name="Chart Details" component={ChartDetailsScreen} />
       </Stack.Navigator>
     )
@@ -71,7 +71,7 @@ export default function App() {
             switch (route.name) {
               case "Home":
                 return <Ionicons name="home" color={color} size={size} />;
-              case "Analytics":
+              case "Analytics Stack":
                 return <Ionicons name="analytics" color={color} size={size} />;
               case "Friend Activity":
                 return <Ionicons name="people" color={color} size={size} />;
@@ -84,10 +84,11 @@ export default function App() {
             backgroundColor: colors.gray[100],
             height: 64,
           },
+          unmountOnBlur: true,
         })}
       >
         <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
-        <Tab.Screen name="Analytics" component={AnalyticsStack} options={{ headerShown: false }} />
+        <Tab.Screen name="Analytics Stack" component={AnalyticsStack} options={{ headerShown: false }} />
         <Tab.Screen name="Friend Activity" component={FriendActivityScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>

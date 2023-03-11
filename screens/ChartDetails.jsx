@@ -34,7 +34,7 @@ class ChartDetailsScreen extends React.Component {
   render() {
     return <View>
       <View style={styles.item}>
-        {this.title == "Sentiment"? <Text>Date</Text>: <Text>{this.title.split(" ")[0]}</Text>}
+        {this.title == "Sentiment"? <Text>Date</Text>: <Text>{this.title}</Text>}
         {this.title == "Sentiment"? <Text>Sentiment</Text>: <Text>Count</Text>}
       </View>
       <this.ItemDivider/>
@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginHorizontal: 20,
     marginVertical: 20,
-    fontColor: "gray",
   },
   wordText: {
     alignSelf: "flex-start",
