@@ -21,7 +21,7 @@ class AnalyticsScreen extends React.Component {
   };
 
   // Get sentiment for showing trend
-  getSentiment = () => {
+  getSentimentForChart = () => {
     // Initialize all points to neutral sentiment
     let output = {}
     for (let i = 14; i >= 0; i--) {
@@ -35,6 +35,25 @@ class AnalyticsScreen extends React.Component {
         output[daysAgo] = entry["sentimentScore"];
       }
     });
+    return output;
+  }
+
+  // Get all sentiment data
+  getSentiment = () => {
+    let output = [];
+    this.state.user.entries.forEach(function(entry) {
+      output.push([entry["date"], entry["sentimentScore"]]);
+    });
+    // Sort by reverse date
+    output.sort(function compare(a, b) {
+      return a[0] < b[0]? 1: (a[0] > b[0]? -1: 0); 
+    });
+    // Date to string
+    for (let i = 0; i < output.length; i++) {
+      let date = moment(output[i][0]);
+      output[i][0] = date.format("LL");
+      output[i].push(date.fromNow());
+    }
     return output;
   }
 
@@ -59,8 +78,6 @@ class AnalyticsScreen extends React.Component {
       entityCounts[tag].sort(function compare(a, b) {
         return a[1] < b[1]? 1: (a[1] > b[1]? -1: 0);
       });
-      // Get top 5
-      entityCounts[tag] = entityCounts[tag].slice(0, 5);
     }
     return entityCounts;
   }
@@ -73,6 +90,26 @@ class AnalyticsScreen extends React.Component {
       let user = docSnap.data();
       this.setState({ user: user, isLoading: false });
     }
+  }
+
+  sentimentOnPress = () => {
+    let sentimentData = this.getSentiment();
+    this.navigation.navigate("Chart Details", {title: "Sentiment", data: sentimentData});
+  }
+
+  placesOnPress = () => {
+    let entityCounts = this.getNamedEntities();
+    this.navigation.navigate("Chart Details", {title: "Places", data: entityCounts["location"]});
+  }
+
+  peopleOnPress = () => {
+    let entityCounts = this.getNamedEntities();
+    this.navigation.navigate("Chart Details", {title: "People", data: entityCounts["person"]});
+  }
+
+  companiesOnPress = () => {
+    let entityCounts = this.getNamedEntities();
+    this.navigation.navigate("Chart Details", {title: "Companies", data: entityCounts["company"]});
   }
 
   // Invoked immediately after the component is mounted  
@@ -94,13 +131,16 @@ class AnalyticsScreen extends React.Component {
     }
 
     // Line chart
-    let daysAgoToSentiment = this.getSentiment();
+    let daysAgoToSentiment = this.getSentimentForChart();
     let lineChartLabels = [...Object.keys(daysAgoToSentiment)].reverse(); 
     let lineChartData = [...Object.values(daysAgoToSentiment)].reverse();
     let range = Math.max(Math.abs(Math.min(...lineChartData)), Math.abs(Math.max(...lineChartData)));
 
     // Bar charts
     let entityCounts = this.getNamedEntities();
+    for (tag in entityCounts) {
+      entityCounts[tag] = entityCounts[tag].slice(0, 5);
+    }
     let personLabels = entityCounts["person"].map((elem) => elem[0]);
     let personData = entityCounts["person"].map((elem) => elem[1]);
     let locationLabels = entityCounts["location"].map((elem) => elem[0]);
@@ -111,7 +151,10 @@ class AnalyticsScreen extends React.Component {
     return <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.chart}>
-          <Text style={styles.chartTitle}>Sentiment Trend</Text>
+          <View style={styles.header}>
+            <Text style={styles.chartTitle}>Sentiment Trend</Text>
+            <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.sentimentOnPress} />
+          </View>
           <Ionicons style={styles.sentimentIcon} name="happy" size={20} color="green" />
           <LineChart
             data={{
@@ -147,7 +190,10 @@ class AnalyticsScreen extends React.Component {
 
 
         <View style={styles.chart}>
-          <Text style={styles.chartTitle}>Places Mentioned</Text>
+          <View style={styles.header}>
+            <Text style={styles.chartTitle}>Places Mentioned</Text>
+            <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.placesOnPress} />
+          </View>
           <BarChart
             data={{
               labels: locationLabels,
@@ -181,7 +227,10 @@ class AnalyticsScreen extends React.Component {
 
 
         <View style={styles.chart}>
-          <Text style={styles.chartTitle}>People Mentioned</Text>
+          <View style={styles.header}>
+            <Text style={styles.chartTitle}>People Mentioned</Text>
+            <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.peopleOnPress} />
+          </View>
           <BarChart
             data={{
               labels: personLabels,
@@ -215,7 +264,10 @@ class AnalyticsScreen extends React.Component {
 
 
         <View style={styles.chart}>
-          <Text style={styles.chartTitle}>Companies Mentioned</Text>
+          <View style={styles.header}>
+            <Text style={styles.chartTitle}>Companies Mentioned</Text>
+            <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.companiesOnPress} />
+          </View> 
           <BarChart
             data={{
               labels: companyLabels,
@@ -318,5 +370,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     alignSelf: "center",
     color: "gray",
+  },
+  moreIcon: {
+    alignSelf: "center",
   }
 });

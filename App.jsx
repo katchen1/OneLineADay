@@ -8,6 +8,7 @@ import { LogBox } from 'react-native';
 import colors from "tailwindcss/colors";
 import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
+import ChartDetailsScreen from "./screens/ChartDetails";
 import FriendActivityScreen from "./screens/FriendActivity";
 import HomeScreen from "./screens/Home";
 import NewEntryScreen from "./screens/NewEntry";
@@ -49,6 +50,15 @@ export default function App() {
     )
   }
 
+  const AnalyticsStack = () => {
+    return (
+      <Stack.Navigator initialRouteName="Analytics Screen">
+        <Stack.Screen name="Analytics Screen" component={AnalyticsScreen} />
+        <Stack.Screen name="Chart Details" component={ChartDetailsScreen} />
+      </Stack.Navigator>
+    )
+  }
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -77,7 +87,7 @@ export default function App() {
         })}
       >
         <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
-        <Tab.Screen name="Analytics" component={AnalyticsScreen} />
+        <Tab.Screen name="Analytics" component={AnalyticsStack} options={{ headerShown: false }} />
         <Tab.Screen name="Friend Activity" component={FriendActivityScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
