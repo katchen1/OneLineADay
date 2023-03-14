@@ -9,6 +9,8 @@ export default function DeleteAccountScreen() {
   const [password, setPassword] = useState("");
 
   async function deleteAccount() {
+    if (auth.currentUser.email !== email) return;
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       await Promise.all(
