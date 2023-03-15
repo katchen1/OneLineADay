@@ -11,6 +11,7 @@ import colors from "tailwindcss/colors";
 import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
 import ChangePasswordScreen from "./screens/ChangePassword";
+import ChartDetailsScreen from "./screens/ChartDetails";
 import DeleteAccountScreen from "./screens/DeleteAccount";
 import FriendActivityScreen from "./screens/FriendActivity";
 import HomeScreen from "./screens/Home";
@@ -135,6 +136,15 @@ export default function App() {
     );
   };
 
+  const AnalyticsStack = () => {
+    return (
+      <Stack.Navigator initialRouteName="Analytics">
+        <Stack.Screen name="Analytics" component={AnalyticsScreen} />
+        <Stack.Screen name="Chart Details" component={ChartDetailsScreen} />
+      </Stack.Navigator>
+    )
+  }
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -147,7 +157,7 @@ export default function App() {
             switch (route.name) {
               case "Home":
                 return <Ionicons name="home" color={color} size={size} />;
-              case "Analytics":
+              case "Analytics Stack":
                 return <Ionicons name="analytics" color={color} size={size} />;
               case "Friend Activity":
                 return <Ionicons name="people" color={color} size={size} />;
@@ -160,14 +170,11 @@ export default function App() {
             backgroundColor: colors.gray[100],
             height: 64,
           },
+          unmountOnBlur: true,
         })}
       >
-        <Tab.Screen
-          name="Home"
-          component={HomeStack}
-          options={{ headerShown: false }}
-        />
-        <Tab.Screen name="Analytics" component={AnalyticsScreen} />
+        <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
+        <Tab.Screen name="Analytics Stack" component={AnalyticsStack} options={{ headerShown: false }} />
         <Tab.Screen name="Friend Activity" component={FriendActivityScreen} />
         <Tab.Screen
           name="Settings Tab"
