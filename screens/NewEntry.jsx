@@ -34,7 +34,7 @@ class NewEntryScreen extends React.Component {
 
     // Named entity recognition
     const MonkeyLearn = require("monkeylearn");
-    const ml = new MonkeyLearn('e813f344cbd67a7ffd61e8a94f3f9ef347d06a87');
+    const ml = new MonkeyLearn('3a189be6097d3eb7528d2270d0d27150b0839869');
     let model_id = 'ex_isnnZRbS';
     let data = [this.entry.text];
     ml.extractors.extract(model_id, data).then(res => {

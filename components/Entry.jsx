@@ -1,9 +1,10 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import HighlightText from "@sanar/react-native-highlight-text";
 import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-const Entry = ({entry, navigation, index, updateEntry}) => {
+const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
   
   // Calculate years ago
@@ -16,6 +17,12 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
   } else if (yearsAgo > 1) {
     yearsAgoText = yearsAgo + " Years Ago";
   }
+  
+  // Social mode
+  if (entry.name != null) {
+    yearsAgoText = entry.name;
+    year = moment(entry.date, "YYYY-MM-DD").fromNow();
+  }
 
   // Named entities to be highlighted
   let searchWords = [];
@@ -23,16 +30,41 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
     searchWords.push(entry.extractions[i]["extracted_text"]);
   }
 
+  // Handle entry on press
+  entryOnPress = () => {
+    if (entry.name == null) { // if NOT in social mode
+      navigation.navigate("New Entry", {
+        entry: entry,
+        editing: true,
+        onReturn: (oldEntry, newEntry) => updateEntry(oldEntry, newEntry, index),
+      });
+    } 
+  }
+
+  // Like on press
+  likeOnPress = () => {
+    console.log("like on press");
+  }
+
+  // Unlike on press
+  unlikeOnPress = () => {
+    console.log("unlike on press");
+  }
+
+  // Comment on press
+  commentOnPress = () => {
+    console.log("comment on press");
+  }
+
+
+  let numLikes = entry.likes.length;
+  let numComments = entry.comments.length;
+  let likeText = numLikes == 1? " like": " likes";
+  let commentText = numComments == 1? " comment": " comments";
+  let likedByUser = entry.likes.includes(uid);
+
   return (
-    <Pressable
-      onPress={() => {
-        navigation.navigate("New Entry", {
-          entry: entry,
-          editing: true,
-          onReturn: (oldEntry, newEntry) => updateEntry(oldEntry, newEntry, index),
-        });
-      }}
-    >
+    <Pressable onPress={entryOnPress}>
       <View style={styles.container}>
         <View style={styles.entryHeader}>
           <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
@@ -44,7 +76,19 @@ const Entry = ({entry, navigation, index, updateEntry}) => {
           textToHighlight={entry.text}
         />
         {entry.image && <Image style={styles.entryImage} source={{ uri: entry.image }} />}
-      </View>
+
+        {
+          entry.name == null? <View/>: <View style={styles.actionRow}>
+            {
+              likedByUser? <Ionicons style={styles.likeIcon} name="heart" size={20} onPress={this.unlikeOnPress} />: 
+              <Ionicons style={styles.likeIcon} name="heart-outline" size={20} onPress={this.likeOnPress} />
+            }
+            <Text style={styles.actionText}>{numLikes + likeText}</Text>
+            <Ionicons style={styles.commentIcon} name="chatbubble-outline" size={20} onPress={this.commentOnPress} />
+            <Text style={styles.actionText}>{numComments + commentText}</Text>
+          </View>
+        }
+      </View> 
     </Pressable>
   );
 }
@@ -92,4 +136,23 @@ const styles = StyleSheet.create({
   highlight: {
     backgroundColor: "yellow",
   },
+  actionRow: {
+    marginBottom: 10,
+    marginTop: 20,
+    isplay: "flex",
+    flexDirection: "row",
+    marginBottom: 5,
+  },
+  actionText: {
+    alignSelf: "center",
+    marginStart: 3,
+    color: "gray",
+  },
+  commentIcon: {
+    marginStart: 10,
+    color: "gray",
+  },
+  likeIcon: {
+    color: "gray",
+  }
 });
