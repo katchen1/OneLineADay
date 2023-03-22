@@ -8,7 +8,6 @@ export default function SettingsScreen({ navigation }) {
       //backgroundColor: "gray",
     },
     item: {
-      backgroundColor: "white",
       height: 80,
       flexDirection: "row",
       alignItems: "center",
@@ -46,25 +45,41 @@ export default function SettingsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Pressable
-        style={styles.item}
+        //style={styles.item}
+        style={({ pressed }) => [
+          { backgroundColor: pressed ? "#EEEEEE" : "white" },
+          styles.item,
+        ]}
         onPress={() => navigation.navigate("Notifications")}
       >
         <Ionicons name="notifications" size={32} style={styles.icons} />
         <Text style={styles.text}>Notification</Text>
       </Pressable>
       <Pressable
-        style={styles.item}
+        style={({ pressed }) => [
+          { backgroundColor: pressed ? "#EEEEEE" : "white" },
+          styles.item,
+        ]}
         onPress={() => navigation.navigate("Change Password")}
       >
         <Ionicons name="lock-closed" size={32} style={styles.icons} />
         <Text style={styles.text}>Change password</Text>
       </Pressable>
-      <Pressable style={styles.item} onPress={() => auth.signOut().catch()}>
+      <Pressable
+        style={({ pressed }) => [
+          { backgroundColor: pressed ? "#EEEEEE" : "white" },
+          styles.item,
+        ]}
+        onPress={() => auth.signOut().catch()}
+      >
         <Ionicons name="exit" size={36} style={styles.signout_icon} />
         <Text style={styles.text}>Sign out</Text>
       </Pressable>
       <Pressable
-        style={styles.item}
+        style={({ pressed }) => [
+          { backgroundColor: pressed ? "#EEEEEE" : "white" },
+          styles.item,
+        ]}
         onPress={() => navigation.navigate("Delete Account")}
       >
         <Ionicons name="trash" size={32} style={styles.delete_icon} />
