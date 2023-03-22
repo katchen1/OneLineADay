@@ -46,7 +46,7 @@ class FriendActivityScreen extends React.Component  {
   }
 
   friendsOnPress = () => {
-    console.log("friends on press");
+    this.navigation.navigate("Friends", {data: this.state.user.friends});
   }
 
   // Query user data
