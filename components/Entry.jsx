@@ -1,11 +1,14 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import HighlightText from "@sanar/react-native-highlight-text";
 import moment from "moment";
-import React from "react";
+import React, { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+
 
 const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
+  const [likes, setLikes] = useState(entry.likes);
+  const [comments, setComments] = useState(entry.comments);
   
   // Calculate years ago
   let yearsAgoText = "";
@@ -41,14 +44,23 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     } 
   }
 
-  // Like on press
+  // Add this user to the entry's likes
   likeOnPress = () => {
-    console.log("like on press");
+    // Locally
+    setLikes(likes.concat(uid));
+
+    // TODO: update in firestore
   }
 
   // Unlike on press
   unlikeOnPress = () => {
-    console.log("unlike on press");
+    // Locally
+    let index = likes.indexOf(uid);
+    let likesNew = likes.slice();
+    likesNew.splice(index);
+    setLikes(likesNew);
+
+    // TODO: update in firestore
   }
 
   // Comment on press
@@ -57,11 +69,11 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   }
 
 
-  let numLikes = entry.likes.length;
-  let numComments = entry.comments.length;
+  let numLikes = likes.length;
+  let numComments = comments.length;
   let likeText = numLikes == 1? " like": " likes";
   let commentText = numComments == 1? " comment": " comments";
-  let likedByUser = entry.likes.includes(uid);
+  let likedByUser = likes.includes(uid);
 
   return (
     <Pressable onPress={entryOnPress}>
