@@ -28,7 +28,7 @@ export default function SettingsScreen({ navigation }) {
     },
     delete_icon: {
       paddingLeft: 7,
-      color: "BE3333",
+      color: "be3333",
     },
     text: {
       fontSize: 22,
