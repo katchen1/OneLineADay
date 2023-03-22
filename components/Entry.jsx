@@ -1,14 +1,17 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import HighlightText from "@sanar/react-native-highlight-text";
+import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { db } from "../firebaseConfig";
 
 
 const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
-  const [likes, setLikes] = useState(entry.likes);
-  const [comments, setComments] = useState(entry.comments);
+  const [likes, setLikes] = useState(entry.likes.slice());
+  const [comments, setComments] = useState(entry.comments.slice());
+  const [commentsVisible, setCommentsVisible] = useState(false);
   
   // Calculate years ago
   let yearsAgoText = "";
@@ -65,9 +68,54 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
 
   // Comment on press
   commentOnPress = () => {
-    console.log("comment on press");
+    Alert.prompt(
+      "New Comment",
+      null,
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "OK",
+          onPress: text => setComments(
+            comments.concat({uid: uid, datetime: moment().format("YYYY-MM-DD-HH-mm-ss"), text: text})
+          )
+        }
+      ],
+    );
   }
 
+  // Comment visibility on press
+  commentVisibilityOnPress = () => {
+    if (commentsVisible) {
+      setCommentsVisible(false);
+    } else {
+      setCommentsVisible(true);
+    }
+  }
+
+  CommentRender = ({ comment }) => {
+    const [name, setName] = useState("");
+    let fromNowText = moment(comment.datetime, "YYYY-MM-DD-hh-mm-ss").fromNow();
+    queryNameByUid(comment.uid, setName);
+    return <View style={styles.comment}>
+      <View style={styles.commentHeader}>
+        <Text style={styles.nameText}>{name}</Text>
+        <Text style={styles.fromNowText}>{fromNowText}</Text>
+      </View>
+      <Text style={styles.commentText}>{comment.text}</Text>
+    </View>
+  }
+
+  // Query name by uid
+  queryNameByUid = async (uid, setName) => {
+    let userRef = doc(db, "users", uid);
+    let docSnap = await getDoc(userRef);
+    if (docSnap.exists) {
+      let user = docSnap.data();
+      setName(user.name);
+    }
+  }
 
   let numLikes = likes.length;
   let numComments = comments.length;
@@ -90,14 +138,36 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
         {entry.image && <Image style={styles.entryImage} source={{ uri: entry.image }} />}
 
         {
-          entry.name == null? <View/>: <View style={styles.actionRow}>
+          entry.name == null? <View/>:
+          <View style={styles.bottom}>
+            <View style={styles.actionRow}>
+              {
+                likedByUser? <Ionicons style={styles.likeIcon} name="heart" size={20} onPress={this.unlikeOnPress} />: 
+                <Ionicons style={styles.likeIcon} name="heart-outline" size={20} onPress={this.likeOnPress} />
+              }
+              <Text style={styles.actionText}>{numLikes + likeText}</Text>
+              <Ionicons style={styles.commentIcon} name="chatbubble-outline" size={20} onPress={this.commentOnPress} />
+              <Text style={styles.actionText}>{numComments + commentText}</Text>
+            </View>
             {
-              likedByUser? <Ionicons style={styles.likeIcon} name="heart" size={20} onPress={this.unlikeOnPress} />: 
-              <Ionicons style={styles.likeIcon} name="heart-outline" size={20} onPress={this.likeOnPress} />
+              numComments > 0? <View>
+                {
+                  commentsVisible? 
+                  <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>Hide all commments</Text> : 
+                  <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>View all comments</Text>
+                }
+              </View> : <View/>
             }
-            <Text style={styles.actionText}>{numLikes + likeText}</Text>
-            <Ionicons style={styles.commentIcon} name="chatbubble-outline" size={20} onPress={this.commentOnPress} />
-            <Text style={styles.actionText}>{numComments + commentText}</Text>
+            {
+              commentsVisible? <View>
+                {
+                  // List of the entry's comments
+                  comments.map((comment, index) => {
+                    return <CommentRender key={index} comment={comment}/>;
+                  })
+                }
+              </View>: <View/>
+            }
           </View>
         }
       </View> 
@@ -151,7 +221,7 @@ const styles = StyleSheet.create({
   actionRow: {
     marginBottom: 10,
     marginTop: 20,
-    isplay: "flex",
+    display: "flex",
     flexDirection: "row",
     marginBottom: 5,
   },
@@ -166,5 +236,29 @@ const styles = StyleSheet.create({
   },
   likeIcon: {
     color: "gray",
+  },
+  viewAllCommentsText: {
+    color: "gray"
+  },
+  commentHeader: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  comment: {
+    marginTop: 10,
+    backgroundColor: "#EEEEEE",
+    padding: 5,
+    borderRadius: 10,
+    width: "100%",
+  },
+  fromNowText: {
+    marginLeft: 5,
+    color: "gray",
+  },
+  nameText: {
+    fontWeight: "500",
+  },
+  bottom: {
+    width: "100%",
   }
 });
