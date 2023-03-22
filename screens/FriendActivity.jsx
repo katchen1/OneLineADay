@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   tab_description: {
     fontSize: 18,
-    color: "#263238",
+    color: "black",
     paddingRight: 50,
     paddingLeft: 50,
     paddingBottom: 15,
