@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#305DBF",
     borderRadius: 10,
     justifyContent: "center",
+    marginRight: 10,
     padding: 10,
   },
   optOutText: {

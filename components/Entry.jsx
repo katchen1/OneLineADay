@@ -4,15 +4,16 @@ import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React, { useState } from "react";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import DialogInput from "react-native-dialog-input";
 import { db } from "../firebaseConfig";
 
 
 const Entry = ({entry, uid, navigation, index, updateEntry}) => {
-  // console.log(entry);
   let year = moment(entry.date, "YYYY-MM-DD").year();
   const [likes, setLikes] = useState(entry.likes.slice());
   const [comments, setComments] = useState(entry.comments.slice());
   const [commentsVisible, setCommentsVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   
   // Calculate years ago
   let yearsAgoText = "";
@@ -69,19 +70,25 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
 
   // Comment on press
   commentOnPress = () => {
-    Alert.prompt(
-      "New Comment",
-      null,
-      [
-        { text: "Cancel" },
-        { 
-          text: "OK", onPress: text => {
-            entry.comments = comments.concat({uid: uid, datetime: moment().format("YYYY-MM-DD-HH-mm-ss"), text: text});
-            setComments(entry.comments);
+    if (Platform.OS === "ios") {
+      // Alert.prompt only works for ios
+      Alert.prompt(
+        "New Comment",
+        null,
+        [
+          { text: "Cancel" },
+          { 
+            text: "OK", onPress: text => {
+              entry.comments = comments.concat({uid: uid, datetime: moment().format("YYYY-MM-DD-HH-mm-ss"), text: text});
+              setComments(entry.comments);
+            }
           }
-        }
-      ],
-    );
+        ],
+      );
+    } else {
+      // Alternative prompt for android
+      setModalVisible(true);
+    }
     // TODO: update in firestore
   }
 
@@ -150,55 +157,73 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   let likedByUser = likes.includes(uid);
 
   return (
-    <Pressable onPress={entryOnPress}>
-      <View style={styles.container}>
-        <View style={styles.entryHeader}>
-          <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
-          <Text style={styles.entrySubtitle}>{ year }</Text>
-        </View>
-        <HighlightText
-          highlightStyle={styles.highlight}
-          searchWords={searchWords}
-          textToHighlight={entry.text}
-        />
-        {entry.image && <Image style={styles.entryImage} source={{ uri: entry.image }} />}
+    <View>
+      <DialogInput 
+        isDialogVisible={modalVisible}
+        title={"New Comment"}
+        hintInput={"Enter text"}
+        cancelText={"Cancel"}
+        submitText={"OK"}
+        dialogStyle={{borderRadius: 10, backgroundColor: "white"}}
+        modalStyle={{backgroundColor: "rgba(0,0,0,0.5)"}}
+        submitInput={(inputText) => {
+          entry.comments = comments.concat({uid: uid, datetime: moment().format("YYYY-MM-DD-HH-mm-ss"), text: inputText});
+          setComments(entry.comments);
+          setModalVisible(false);
+        }}
+        closeDialog={() => setModalVisible(false)}>
+      </DialogInput>
 
-        {
-          entry.name == null? <View/>:
-          <View style={styles.bottom}>
-            <View style={styles.actionRow}>
-              {
-                likedByUser? <Ionicons style={styles.likeIconFilled} name="heart" size={20} onPress={this.unlikeOnPress} />: 
-                <Ionicons style={styles.likeIconOutline} name="heart-outline" size={20} onPress={this.likeOnPress} />
-              }
-              <Text style={styles.actionText}>{numLikes + likeText}</Text>
-              <Ionicons style={styles.commentIcon} name="chatbubble-outline" size={20} onPress={this.commentOnPress} />
-              <Text style={styles.actionText}>{numComments + commentText}</Text>
-            </View>
-            {
-              numComments > 0? <View>
-                {
-                  // The "Hide all comments" or "View all comments" button
-                  commentsVisible? 
-                  <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>Hide all commments</Text> : 
-                  <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>View all comments</Text>
-                }
-              </View> : <View/>
-            }
-            {
-              commentsVisible? <View>
-                {
-                  // List of the entry's comments
-                  comments.map((comment, index) => {
-                    return <CommentRender key={index} comment={comment}/>;
-                  })
-                }
-              </View>: <View/>
-            }
+      <Pressable onPress={entryOnPress}>
+        <View style={styles.container}>
+          <View style={styles.entryHeader}>
+            <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
+            <Text style={styles.entrySubtitle}>{ year }</Text>
           </View>
-        }
-      </View> 
-    </Pressable>
+          <HighlightText
+            highlightStyle={styles.highlight}
+            searchWords={searchWords}
+            textToHighlight={entry.text}
+          />
+          {entry.image && <Image style={styles.entryImage} source={{ uri: entry.image }} />}
+
+          {
+            entry.name == null? <View/>:
+            <View style={styles.bottom}>
+              <View style={styles.actionRow}>
+                {
+                  likedByUser? <Ionicons style={styles.likeIconFilled} name="heart" size={20} onPress={this.unlikeOnPress} />: 
+                  <Ionicons style={styles.likeIconOutline} name="heart-outline" size={20} onPress={this.likeOnPress} />
+                }
+                <Text style={styles.actionText}>{numLikes + likeText}</Text>
+                <Ionicons style={styles.commentIcon} name="chatbubble-outline" size={20} onPress={this.commentOnPress} />
+                <Text style={styles.actionText}>{numComments + commentText}</Text>
+              </View>
+              {
+                numComments > 0? <View>
+                  {
+                    // The "Hide all comments" or "View all comments" button
+                    commentsVisible? 
+                    <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>Hide all commments</Text> : 
+                    <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>View all comments</Text>
+                  }
+                </View> : <View/>
+              }
+              {
+                commentsVisible? <View>
+                  {
+                    // List of the entry's comments
+                    comments.map((comment, index) => {
+                      return <CommentRender key={index} comment={comment}/>;
+                    })
+                  }
+                </View>: <View/>
+              }
+            </View>
+          }
+        </View> 
+      </Pressable>
+    </View>
   );
 }
 
@@ -291,6 +316,12 @@ const styles = StyleSheet.create({
   },
   likeIconFilled: {
     color: "#305DBF",
+  },
+  modal: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginVertical: 200,
   },
   nameText: {
     fontWeight: "500",
