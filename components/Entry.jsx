@@ -51,7 +51,6 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   likeOnPress = () => {
     // Locally
     setLikes(likes.concat(uid));
-
     // TODO: update in firestore
   }
 
@@ -62,7 +61,6 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     let likesNew = likes.slice();
     likesNew.splice(index);
     setLikes(likesNew);
-
     // TODO: update in firestore
   }
 
@@ -83,6 +81,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
         }
       ],
     );
+    // TODO: update in firestore
   }
 
   // Comment visibility on press
@@ -100,8 +99,31 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     queryNameByUid(comment.uid, setName);
     return <View style={styles.comment}>
       <View style={styles.commentHeader}>
-        <Text style={styles.nameText}>{name}</Text>
-        <Text style={styles.fromNowText}>{fromNowText}</Text>
+        <View style={styles.commentHeaderText}>
+          <Text style={styles.nameText}>{name}</Text>
+          <Text style={styles.fromNowText}>{fromNowText}</Text>
+        </View>
+        {
+          comment.uid == uid?
+          <Ionicons style={styles.deleteIcon} name="trash" size={20} onPress={() => {
+            let commentsNew = comments.slice();
+            let index = comments.indexOf(comment);
+            commentsNew.splice(index, 1);
+            Alert.alert(
+              "Delete Comment",
+              "Are you sure?",
+              [
+                {
+                  text: "Cancel",
+                },
+                {
+                  text: "OK",
+                  onPress: () => setComments(commentsNew)
+                }
+              ],
+            );
+          }} />:<View/>
+        }
       </View>
       <Text style={styles.commentText}>{comment.text}</Text>
     </View>
@@ -142,8 +164,8 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
           <View style={styles.bottom}>
             <View style={styles.actionRow}>
               {
-                likedByUser? <Ionicons style={styles.likeIcon} name="heart" size={20} onPress={this.unlikeOnPress} />: 
-                <Ionicons style={styles.likeIcon} name="heart-outline" size={20} onPress={this.likeOnPress} />
+                likedByUser? <Ionicons style={styles.likeIconFilled} name="heart" size={20} onPress={this.unlikeOnPress} />: 
+                <Ionicons style={styles.likeIconOutline} name="heart-outline" size={20} onPress={this.likeOnPress} />
               }
               <Text style={styles.actionText}>{numLikes + likeText}</Text>
               <Ionicons style={styles.commentIcon} name="chatbubble-outline" size={20} onPress={this.commentOnPress} />
@@ -234,8 +256,11 @@ const styles = StyleSheet.create({
     marginStart: 10,
     color: "gray",
   },
-  likeIcon: {
+  likeIconOutline: {
     color: "gray",
+  },
+  likeIconFilled: {
+    color: "#305DBF",
   },
   viewAllCommentsText: {
     color: "gray"
@@ -243,6 +268,7 @@ const styles = StyleSheet.create({
   commentHeader: {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
   },
   comment: {
     marginTop: 10,
@@ -253,12 +279,21 @@ const styles = StyleSheet.create({
   },
   fromNowText: {
     marginLeft: 5,
+    marginBottom: 5,
     color: "gray",
   },
   nameText: {
+    marginBottom: 5,
     fontWeight: "500",
   },
   bottom: {
     width: "100%",
+  },
+  commentHeaderText: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  deleteIcon: {
+    color: "gray",
   }
 });
