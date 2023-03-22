@@ -31,13 +31,13 @@ export default function SettingsScreen({ navigation }) {
       color: "be3333",
     },
     text: {
-      fontSize: 22,
+      fontSize: 20,
       corlor: "#263238",
       paddingLeft: 8,
       flex: 8,
     },
     delete_account_text: {
-      fontSize: 22,
+      fontSize: 20,
       corlor: "#263238",
       paddingLeft: 8,
     },
@@ -49,25 +49,25 @@ export default function SettingsScreen({ navigation }) {
         style={styles.item}
         onPress={() => navigation.navigate("Notifications")}
       >
-        <Ionicons name="notifications" size={36} style={styles.icons} />
+        <Ionicons name="notifications" size={32} style={styles.icons} />
         <Text style={styles.text}>Notification</Text>
       </Pressable>
       <Pressable
         style={styles.item}
         onPress={() => navigation.navigate("Change Password")}
       >
-        <Ionicons name="lock-closed" size={36} style={styles.icons} />
+        <Ionicons name="lock-closed" size={32} style={styles.icons} />
         <Text style={styles.text}>Change password</Text>
       </Pressable>
       <Pressable style={styles.item} onPress={() => auth.signOut().catch()}>
-        <Ionicons name="exit" size={40} style={styles.signout_icon} />
+        <Ionicons name="exit" size={36} style={styles.signout_icon} />
         <Text style={styles.text}>Sign out</Text>
       </Pressable>
       <Pressable
         style={styles.item}
         onPress={() => navigation.navigate("Delete Account")}
       >
-        <Ionicons name="trash" size={36} style={styles.delete_icon} />
+        <Ionicons name="trash" size={32} style={styles.delete_icon} />
         <Text style={styles.delete_account_text}>Delete account</Text>
       </Pressable>
     </View>
