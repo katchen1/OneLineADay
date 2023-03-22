@@ -12,7 +12,7 @@ class FriendsScreen extends React.Component {
     this.state = {
       friendUids: props.route.params.data, // list of friend uids
       friends: [], // each friend has uid, name, email
-      isLoading : true
+      isLoading : true,
     };
   }
 
@@ -22,6 +22,7 @@ class FriendsScreen extends React.Component {
     this.queryFriends();
   }
 
+  // Query friends by list of uids
   queryFriends = async() => {
     const q = query(collection(db, "users"), where(documentId(), "in", this.state.friendUids));
     const querySnapshot = await getDocs(q);
@@ -34,10 +35,12 @@ class FriendsScreen extends React.Component {
     this.setState({isLoading: false});
   }
 
+  // When the remove friend button is pressed
   removeFriendOnPress = () => {
     console.log("remove friend on press");
   }
 
+  // Render a friend item
   ItemRender = ({ friend }) => {
     return <View style={styles.item}>
       <View style>
@@ -80,16 +83,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "300",
   },
-  friendEmailText: {
-    fontSize: 16,
-    fontWeight: "300",
-    color: "gray",
-  },
   divider: {
     alignSelf: "center",
     backgroundColor: "gray",
     height: 1,
     width: "90%",
+  },
+  friendEmailText: {
+    color: "gray",
+    fontSize: 16,
+    fontWeight: "300",
   },
   friendNameText: {
     fontSize: 20,
@@ -99,11 +102,11 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 10,
     paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   removeButton: {
-    color: "#305DBF",
     alignSelf: "center",
+    color: "#305DBF",
   }
 });

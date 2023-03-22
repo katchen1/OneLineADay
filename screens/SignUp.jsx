@@ -18,8 +18,9 @@ export default function SignUpScreen({ navigation }) {
         // Default data
         email: email,
         entries: [],
-        social_mode: false,
-        name: email,
+        social_mode: false, // Private mode by default
+        name: email, // The user's name is their email by default
+        friends: [],
       });
     } catch (error) {
       console.error(error);

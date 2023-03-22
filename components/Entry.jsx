@@ -8,6 +8,7 @@ import { db } from "../firebaseConfig";
 
 
 const Entry = ({entry, uid, navigation, index, updateEntry}) => {
+  // console.log(entry);
   let year = moment(entry.date, "YYYY-MM-DD").year();
   const [likes, setLikes] = useState(entry.likes.slice());
   const [comments, setComments] = useState(entry.comments.slice());
@@ -50,6 +51,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
   // Add this user to the entry's likes
   likeOnPress = () => {
     // Locally
+    entry.likes = likes.concat(uid);
     setLikes(likes.concat(uid));
     // TODO: update in firestore
   }
@@ -60,6 +62,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     let index = likes.indexOf(uid);
     let likesNew = likes.slice();
     likesNew.splice(index);
+    entry.likes = likesNew;
     setLikes(likesNew);
     // TODO: update in firestore
   }
@@ -70,14 +73,12 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
       "New Comment",
       null,
       [
-        {
-          text: "Cancel",
-        },
-        {
-          text: "OK",
-          onPress: text => setComments(
-            comments.concat({uid: uid, datetime: moment().format("YYYY-MM-DD-HH-mm-ss"), text: text})
-          )
+        { text: "Cancel" },
+        { 
+          text: "OK", onPress: text => {
+            entry.comments = comments.concat({uid: uid, datetime: moment().format("YYYY-MM-DD-HH-mm-ss"), text: text});
+            setComments(entry.comments);
+          }
         }
       ],
     );
@@ -93,6 +94,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     }
   }
 
+  // Render a comment
   CommentRender = ({ comment }) => {
     const [name, setName] = useState("");
     let fromNowText = moment(comment.datetime, "YYYY-MM-DD-hh-mm-ss").fromNow();
@@ -112,17 +114,18 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
             Alert.alert(
               "Delete Comment",
               "Are you sure?",
-              [
-                {
-                  text: "Cancel",
-                },
+              [ 
+                { text: "Cancel" },
                 {
                   text: "OK",
-                  onPress: () => setComments(commentsNew)
+                  onPress: () => {
+                    entry.comments = commentsNew;
+                    setComments(commentsNew);
+                  }
                 }
               ],
             );
-          }} />:<View/>
+          }} />: <View/>
         }
       </View>
       <Text style={styles.commentText}>{comment.text}</Text>
@@ -139,6 +142,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     }
   }
 
+  // Get the entry's like/comment statistics to display later
   let numLikes = likes.length;
   let numComments = comments.length;
   let likeText = numLikes == 1? " like": " likes";
@@ -174,6 +178,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
             {
               numComments > 0? <View>
                 {
+                  // The "Hide all comments" or "View all comments" button
                   commentsVisible? 
                   <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>Hide all commments</Text> : 
                   <Text style={styles.viewAllCommentsText} onPress={this.commentVisibilityOnPress}>View all comments</Text>
@@ -201,6 +206,19 @@ export default Entry;
 
 // Style sheet
 const styles = StyleSheet.create({
+  actionRow: {
+    display: "flex",
+    flexDirection: "row",
+    marginTop: 10,
+  },
+  actionText: {
+    alignSelf: "center",
+    color: "gray",
+    marginStart: 3,
+  },
+  bottom: {
+    width: "100%",
+  },
   container: {
     alignItems: "flex-start",
     backgroundColor: "white",
@@ -210,6 +228,29 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     padding: 10,
+  },
+  comment: {
+    backgroundColor: "#EEEEEE",
+    borderRadius: 10,
+    marginTop: 10,
+    padding: 5,
+    width: "100%",
+  },
+  commentHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  commentHeaderText: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  commentIcon: {
+    color: "gray",
+    marginStart: 10,
+  },
+  deleteIcon: {
+    color: "gray",
   },
   entryHeader: {
     display: "flex",
@@ -237,24 +278,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginRight: 5,
   },
+  fromNowText: {
+    color: "gray",
+    marginBottom: 5,
+    marginLeft: 5,
+  },
   highlight: {
     backgroundColor: "yellow",
-  },
-  actionRow: {
-    marginBottom: 10,
-    marginTop: 20,
-    display: "flex",
-    flexDirection: "row",
-    marginBottom: 5,
-  },
-  actionText: {
-    alignSelf: "center",
-    marginStart: 3,
-    color: "gray",
-  },
-  commentIcon: {
-    marginStart: 10,
-    color: "gray",
   },
   likeIconOutline: {
     color: "gray",
@@ -262,38 +292,12 @@ const styles = StyleSheet.create({
   likeIconFilled: {
     color: "#305DBF",
   },
-  viewAllCommentsText: {
-    color: "gray"
-  },
-  commentHeader: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  comment: {
-    marginTop: 10,
-    backgroundColor: "#EEEEEE",
-    padding: 5,
-    borderRadius: 10,
-    width: "100%",
-  },
-  fromNowText: {
-    marginLeft: 5,
-    marginBottom: 5,
-    color: "gray",
-  },
   nameText: {
-    marginBottom: 5,
     fontWeight: "500",
+    marginBottom: 5,
   },
-  bottom: {
-    width: "100%",
-  },
-  commentHeaderText: {
-    display: "flex",
-    flexDirection: "row",
-  },
-  deleteIcon: {
+  viewAllCommentsText: {
     color: "gray",
-  }
+    marginTop: 5,
+  },
 });

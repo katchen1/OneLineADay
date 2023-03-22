@@ -11,17 +11,31 @@ class FriendActivityScreen extends React.Component  {
   constructor(props) {
     super(props);
     this.navigation = props.navigation;
-    this.state = { user: {}, isLoading : true, selectedDate: moment(), social_mode: null, filteredEntries: [], friendEntries: [] };
+    this.state = { 
+      user: {},
+      isLoading : true,
+      selectedDate: moment(),
+      social_mode: null,
+      filteredEntries: [],
+      friendEntries: []
+    };
   }
 
   handleOptIn = async () => {
     await this.queryFriends(this.state.user.friends);
     this.setState({ social_mode: true });
-    
-    // Update the social_mode field in firestore
-    setDoc(this.userRef, { social_mode: true }, { merge: true });
+    setDoc(this.userRef, { social_mode: true }, { merge: true }); // Firestore update
+    this.updateHeaderOptedIn();
+  };
 
-    // Opt-out button
+  handleOptOut = () => {
+    this.setState({ social_mode: false });
+    setDoc(this.userRef, { social_mode: false }, { merge: true }); // Firestore update
+    this.updateHeaderOptedOut();
+  }
+
+  // Display the opt-out button
+  updateHeaderOptedIn = () => {
     this.navigation.setOptions({ 
       title: "Friend Activity",
       headerLeft: () => (<Pressable style={styles.optOutButton} onPress={this.handleOptOut}>
@@ -29,15 +43,10 @@ class FriendActivityScreen extends React.Component  {
       </Pressable>),
       headerRight: () => (<Ionicons style={styles.friendsButton} name="people" size={28} onPress={this.friendsOnPress} />)
     });
-  };  
+  }
 
-  handleOptOut = () => {
-    this.setState({ social_mode: false });
-
-    // Update the social_mode field in firestore
-    setDoc(this.userRef, { social_mode: false }, { merge: true });
-
-    // Opt-out button
+  // Don't display the opt-out button
+  updateHeaderOptedOut = () => {
     this.navigation.setOptions({ 
       title: "Friend Activity",
       headerLeft: () => (<View/>),
@@ -45,6 +54,7 @@ class FriendActivityScreen extends React.Component  {
     });
   }
 
+  // When the friends icon on the upper right is pressed
   friendsOnPress = () => {
     this.navigation.navigate("Friends", {data: this.state.user.friends});
   }
@@ -59,28 +69,25 @@ class FriendActivityScreen extends React.Component  {
       this.setState({ user: user, isLoading: false, social_mode: user.social_mode });
       if (user.social_mode) {
         this.queryFriends(user.friends);
-
-        // Opt-out button
-        this.navigation.setOptions({ 
-          title: "Friend Activity",
-          headerLeft: () => (<Pressable style={styles.optOutButton} onPress={this.handleOptOut}>
-            <Text style={styles.optOutText}>Opt Out</Text>
-          </Pressable>),
-          headerRight: () => (<Ionicons style={styles.friendsButton} name="people" size={28} onPress={this.friendsOnPress} />)
-        });
+        this.updateHeaderOptedIn();
+      } else {
+        this.updateHeaderOptedOut();
       }
     }
   }
 
   // Query friends data
   queryFriends = async (friendUids) => {
-    const q = query(collection(db, "users"), where(documentId(), "in", friendUids));
-    const querySnapshot = await getDocs(q);
+    // Add the user's entries to the list visible in the social tab
     userEntries = [...this.state.user.entries];
     userEntries.forEach((entry) => {
       entry.name = this.state.user.name;
     });
     this.setState({friendEntries: userEntries});
+
+    // Now actually query friends data
+    const q = query(collection(db, "users"), where(documentId(), "in", friendUids));
+    const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       let entries = doc.data().entries;
       entries.forEach((entry) => {
@@ -124,6 +131,15 @@ class FriendActivityScreen extends React.Component  {
     }
   }
 
+  // Update entry
+  updateEntry = (oldEntry, newEntry, index) => {
+    console.log("OLD");
+    console.log(oldEntry);
+    console.log("NEW");
+    console.log(newEntry);
+    console.log("INDEX: " + index);
+  }
+
   render() {
     // Buffer
     if (this.state.isLoading) {
@@ -156,7 +172,6 @@ class FriendActivityScreen extends React.Component  {
     let selectedDateString = this.state.selectedDate.format("MMMM D");
     let selectedDateIsToday = this.state.selectedDate.format("MMMM D") == moment().format("MMMM D");
     let selectedDateIsTwoDaysAgo = this.state.selectedDate.format("MMMM D") == moment().subtract(2, 'days').format("MMMM D"); 
-
     return <View style={styles.containerEntries}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
@@ -167,7 +182,7 @@ class FriendActivityScreen extends React.Component  {
         {
           // List of the user's entry of the selected date
           this.state.filteredEntries.map((entry, index) => {
-            return <Entry key={index} uid={this.state.user.uid} entry={entry} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
+            return <Entry key={JSON.stringify(entry)} uid={this.state.user.uid} entry={entry} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
           })
         }
       </ScrollView>
@@ -182,37 +197,19 @@ export default function(props) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
+    flex: 1,
     justifyContent: "center",
   },
   containerEntries: {
     display: "flex",
     flexDirection: "column",
   },
-  optin_button: {
-    //backgroundColor: "#305dbf",
-    borderRadius: 10,
-    height: 60,
-    width: 150,
-    marginHorizontal: 10,
-    marginVertical: 5,
-    padding: 10,
-    justifyContent: "center",
-  },
-  optin_text: {
-    fontSize: 28,
+  dateText: {
+    alignSelf: "center",
+    fontSize: 20,
     fontWeight: "500",
-    color: "white",
-    textAlign: "center",
-  },
-  tab_description: {
-    fontSize: 18,
-    color: "black",
-    paddingRight: 50,
-    paddingLeft: 50,
-    paddingBottom: 15,
-    textAlign: "center",
+    margin: 5,
   },
   friendsButton: {
     marginRight: 10,
@@ -224,23 +221,39 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 10,
   },
-  scrollView: {
-    height: "100%",
+  optin_button: {
+    borderRadius: 10,
+    height: 60,
+    justifyContent: "center",
+    marginHorizontal: 10,
+    marginVertical: 5,
+    padding: 10,
+    width: 150,
   },
-  dateText: {
-    alignSelf: "center",
-    fontSize: 20,
+  optin_text: {
+    color: "white",
+    fontSize: 28,
     fontWeight: "500",
-    margin: 5,
+    textAlign: "center",
   },
   optOutButton: {
     backgroundColor: "#305DBF",
-    marginLeft: 10,
     borderRadius: 10,
-    padding: 10,
     justifyContent: "center",
+    padding: 10,
   },
   optOutText: {
     color: "white",
+  },
+  scrollView: {
+    height: "100%",
+  },
+  tab_description: {
+    color: "black",
+    fontSize: 18,
+    paddingBottom: 15,
+    paddingLeft: 50,
+    paddingRight: 50,
+    textAlign: "center",
   },
 });
