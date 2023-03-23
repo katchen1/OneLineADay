@@ -3,7 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Sentiment from 'sentiment';
 import EntryEditable from "../components/EntryEditable";
 import { auth, db } from "../firebaseConfig";
@@ -56,8 +56,21 @@ class NewEntryScreen extends React.Component {
 
   // Delete entry
   deleteOnPress = () => {
-    this.onReturn(this.oldEntry, null);
-    this.navigation.goBack();
+    // Show confirmation message
+    Alert.alert(
+      "Delete Entry",
+      "Are you sure?",
+      [ 
+        { text: "Cancel" },
+        {
+          text: "OK",
+          onPress: () => {
+            this.onReturn(this.oldEntry, null);
+            this.navigation.goBack();
+          }
+        }
+      ],
+    );
   }
 
   // Cancel

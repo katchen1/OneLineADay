@@ -41,6 +41,10 @@ const EntryEditable = ({entry, text, setText, image, setImage, visibility, setVi
     });
   }
 
+  const removeImageOnPress = () => {
+    setImage("");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.entryHeader}>
@@ -57,9 +61,16 @@ const EntryEditable = ({entry, text, setText, image, setImage, visibility, setVi
         value={text}
       />
       {image && <Image source={{ uri: image }} style={styles.entryImage} />}
-      <Pressable style={styles.selectImageButton} onPress={selectImageOnPress}>
-        <Text style={styles.selectImageText}>Select Image</Text>
-      </Pressable>
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.selectImageButton} onPress={selectImageOnPress}>
+          <Text style={styles.selectImageText}>Select Image</Text>
+        </Pressable>
+        {image == ""? <View/>:
+          <Pressable style={styles.removeImageButton} onPress={removeImageOnPress}>
+            <Text style={styles.removeImageText}>Remove</Text>
+          </Pressable>
+        }
+      </View>
     </View>
   );
 }
@@ -68,6 +79,12 @@ export default EntryEditable;
 
 // Style sheet
 const styles = StyleSheet.create({
+  buttonRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   container: {
     alignItems: "flex-start",
     backgroundColor: "white",
@@ -116,6 +133,22 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     marginBottom: 10,
   },
+  removeImageButton: {
+    backgroundColor: "#EEEEEE",
+    borderRadius: 10,
+    height: 80,
+    justifyContent: "center",
+    marginTop: 10,
+    marginLeft: 10,
+    padding: 10,
+    width: "48%",
+  },
+  removeImageText: {
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "500",
+    margin: 5,
+  },
   selectImageButton: {
     backgroundColor: "#305DBF",
     borderRadius: 10,
@@ -123,7 +156,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
     padding: 10,
-    width: "100%",
+    width: "48%",
   },
   selectImageText: {
     alignSelf: "center",
