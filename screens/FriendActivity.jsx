@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { collection, doc, documentId, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -56,7 +56,10 @@ class FriendActivityScreen extends React.Component  {
 
   // When the friends icon on the upper right is pressed
   friendsOnPress = () => {
-    this.navigation.navigate("Friends", {data: this.state.user.friends});
+    this.navigation.navigate("Friends", {
+      data: this.state.user.friends,
+      onReturn: () => this.queryUser(auth.currentUser),
+    });
   }
 
   // Query user data
@@ -86,14 +89,16 @@ class FriendActivityScreen extends React.Component  {
     this.setState({friendEntries: userEntries});
 
     // Now actually query friends data
-    const q = query(collection(db, "users"), where(documentId(), "in", friendUids));
+    const q = query(collection(db, "users"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
-      let entries = doc.data().entries;
-      entries.forEach((entry) => {
-        entry.name = doc.data().name;
-      });
-      this.setState({friendEntries: this.state.friendEntries.concat(entries)});
+      if (friendUids.includes(doc.id)) {
+        let entries = doc.data().entries;
+        entries.forEach((entry) => {
+          entry.name = doc.data().name;
+        });
+        this.setState({friendEntries: this.state.friendEntries.concat(entries)});
+      }
     });
     this.filterEntries();
   }
@@ -130,16 +135,7 @@ class FriendActivityScreen extends React.Component  {
       });
     }
   }
-
-  // Update entry
-  updateEntry = (oldEntry, newEntry, index) => {
-    console.log("OLD");
-    console.log(oldEntry);
-    console.log("NEW");
-    console.log(newEntry);
-    console.log("INDEX: " + index);
-  }
-
+  
   render() {
     // Buffer
     if (this.state.isLoading) {
@@ -182,7 +178,7 @@ class FriendActivityScreen extends React.Component  {
         {
           // List of the user's entry of the selected date
           this.state.filteredEntries.map((entry, index) => {
-            return <Entry key={JSON.stringify(entry)} uid={this.state.user.uid} entry={entry} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
+            return <Entry key={JSON.stringify(entry)} uid={this.state.user.uid} entry={entry} navigation={this.navigation} index={index} />;
           })
         }
       </ScrollView>

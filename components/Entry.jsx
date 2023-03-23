@@ -62,7 +62,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     // Locally
     let index = likes.indexOf(uid);
     let likesNew = likes.slice();
-    likesNew.splice(index);
+    likesNew.splice(index, 1);
     entry.likes = likesNew;
     setLikes(likesNew);
     // TODO: update in firestore

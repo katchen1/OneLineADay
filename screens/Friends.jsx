@@ -11,6 +11,7 @@ class FriendsScreen extends React.Component {
   constructor(props) {
     super(props);
     this.navigation = props.navigation;
+    this.onReturn = props.route.params.onReturn;
     this.state = {
       friendUids: props.route.params.data, // list of friend uids
       friends: [], // each friend has uid, name, email
@@ -26,6 +27,10 @@ class FriendsScreen extends React.Component {
     this.navigation.setOptions({ title: "Friends"});
     this.userRef = doc(db, "users", auth.currentUser.uid);
     this.queryFriends();
+  }
+
+  componentWillUnmount() {
+    this.onReturn();
   }
 
   // Query friends by list of uids
