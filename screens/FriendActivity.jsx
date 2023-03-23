@@ -93,7 +93,7 @@ class FriendActivityScreen extends React.Component  {
     const q = query(collection(db, "users"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
-      if (friendUids.includes(doc.id)) {
+      if (friendUids.includes(doc.id) && doc.data().social_mode) {
         let entries = doc.data().entries;
         entries.forEach((entry) => {
           entry.name = doc.data().name;
