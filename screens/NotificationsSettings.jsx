@@ -150,28 +150,14 @@ export default function NotificationsSettingsScreen() {
           onValueChange={toggleNotifications}
         />
       </View>
-      <Pressable style={styles.container} onPress={handleTimePickerOpen}>
-        <Text style={styles.text}>Reset reminder time</Text>
-        <Text
-          className="text-gray-500"
-          style={styles.date_text}
-        >{`${notificationTime.getHours()}:${notificationTime
-          .getMinutes()
-          .toString()
-          .padStart(2, "0")}`}</Text>
-      </Pressable>
-      <View style={styles.time_picker}>
-        {showTimePicker ? (
-          <>
-            <Text style={styles.time_picker_text}>Click to reset</Text>
-            <DateTimePicker
-              mode="time"
-              value={notificationTime}
-              onChange={handleTimePickerChange}
-            />
-          </>
-        ) : null}
-      </View>
+      {notificationsEnabled? <Pressable style={styles.container} onPress={handleTimePickerOpen}>
+        <Text style={styles.text}>Reminder time</Text>
+        <DateTimePicker
+          mode="time"
+          value={notificationTime}
+          onChange={handleTimePickerChange}
+        />
+      </Pressable>:<View/>}
     </>
   );
 } //className="text-lg text-gray-500"
