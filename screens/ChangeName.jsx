@@ -7,6 +7,7 @@ import { auth, db } from "../firebaseConfig";
 export default class ChangeNameScreen extends React.Component {
   constructor(props) {
     super(props);
+    this.navigation = props.navigation;
     this.state = {oldName: "", newName: "", isLoading: true};
   }
 
@@ -14,6 +15,7 @@ export default class ChangeNameScreen extends React.Component {
     this.setState({oldName: this.state.newName}); // Update UI
     setDoc(this.userRef, { name: this.state.newName }, { merge: true }); // Firestore update
     Toast.show("Name updated"); // Show confirmation message
+    this.navigation.goBack();
   }
 
   async componentDidMount() {

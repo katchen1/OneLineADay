@@ -1,6 +1,7 @@
 import { signInWithEmailAndPassword, updatePassword } from "firebase/auth";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
+import Toast from "react-native-root-toast";
 import { auth } from "../firebaseConfig";
 
 export default function ChangePasswordScreen({ navigation }) {
@@ -18,6 +19,7 @@ export default function ChangePasswordScreen({ navigation }) {
         currentPassword
       );
       await updatePassword(auth.currentUser, newPassword1);
+      Toast.show("Password updated");
       navigation.goBack();
     } catch (error) {
       console.error(error);
@@ -47,6 +49,7 @@ export default function ChangePasswordScreen({ navigation }) {
         />
         <Pressable
           className="mt-2 h-16 items-center justify-center rounded-md bg-blue-700"
+          style={{backgroundColor: "#305DBF"}}
           onPress={updateUserPassword}
         >
           <Text className="items-center justify-center text-xl font-bold text-gray-100">
