@@ -1,10 +1,11 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from 'expo-image-picker';
 import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { AutoGrowingTextInput } from "react-native-autogrow-textinput";
 
-const EntryEditable = ({entry, text, setText, image, setImage}) => {
+const EntryEditable = ({entry, text, setText, image, setImage, visibility, setVisibility, navigation, socialMode}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
   
   // Calculate years ago
@@ -31,11 +32,23 @@ const EntryEditable = ({entry, text, setText, image, setImage}) => {
     }
   };
 
+  const visibilityOnPress = () => {
+    navigation.navigate("Visibility Settings", {
+      visibility: visibility, 
+      onReturn: (newVisibility) => {
+        setVisibility(newVisibility);
+      }
+    });
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.entryHeader}>
-        <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
-        <Text style={styles.entrySubtitle}>{ year }</Text>
+        <View style={styles.entryHeaderText}>
+          <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
+          <Text style={styles.entrySubtitle}>{ year }</Text>
+        </View>
+        {socialMode? <Ionicons style={styles.visibilityIcon} name="eye" size={24} onPress={visibilityOnPress} />: <View/>}
       </View>
       <AutoGrowingTextInput
         style={styles.input}
@@ -68,7 +81,13 @@ const styles = StyleSheet.create({
   entryHeader: {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 5,
+    width: "100%",
+  },
+  entryHeaderText: {
+    display: "flex",
+    flexDirection: "row"
   },
   entryImage: {
     borderRadius: 10,
@@ -112,5 +131,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "500",
     margin: 5,
+  },
+  visibilityIcon: {
+    color: "#305DBF",
+    alignSelf: "center",
   },
 });

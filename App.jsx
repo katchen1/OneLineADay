@@ -21,6 +21,7 @@ import NotificationsSettingsScreen from "./screens/NotificationsSettings";
 import SettingsScreen from "./screens/Settings";
 import SignInScreen from "./screens/SignIn";
 import SignUpScreen from "./screens/SignUp";
+import VisibilitySettingsScreen from "./screens/VisibilitySettings";
 
 LogBox.ignoreAllLogs();
 
@@ -119,6 +120,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home Screen">
         <Stack.Screen name="Home Screen" component={HomeScreen} />
         <Stack.Screen name="New Entry" component={NewEntryScreen} />
+        <Stack.Screen name="Visibility Settings" component={VisibilitySettingsScreen} />
       </Stack.Navigator>
     );
   };
