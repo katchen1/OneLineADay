@@ -13,7 +13,7 @@ export default function SettingsScreen({ navigation }) {
       alignItems: "center",
       paddingHorizontal: 5,
       marginHorizontal: 8,
-      marginVertical: 16,
+      marginTop: 10,
       borderRadius: 10,
     },
     icons: {
@@ -54,6 +54,16 @@ export default function SettingsScreen({ navigation }) {
       >
         <Ionicons name="notifications" size={32} style={styles.icons} />
         <Text style={styles.text}>Notification</Text>
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [
+          { backgroundColor: pressed ? "#EEEEEE" : "white" },
+          styles.item,
+        ]}
+        onPress={() => navigation.navigate("Change Name")}
+      >
+        <Ionicons name="person-circle" size={32} style={styles.icons} />
+        <Text style={styles.text}>Change name</Text>
       </Pressable>
       <Pressable
         style={({ pressed }) => [

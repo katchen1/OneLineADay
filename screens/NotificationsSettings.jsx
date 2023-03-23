@@ -108,8 +108,7 @@ export default function NotificationsSettingsScreen() {
       alignItems: "center",
       paddingHorizontal: 5,
       marginHorizontal: 12,
-      marginTop: 12,
-      marginBottom: 15,
+      marginTop: 10,
       borderRadius: 10,
     },
     time_picker: {
@@ -148,6 +147,7 @@ export default function NotificationsSettingsScreen() {
         <Switch
           value={notificationsEnabled}
           onValueChange={toggleNotifications}
+          trackColor={{true: "#305DBF"}}
         />
       </View>
       {notificationsEnabled? <Pressable style={styles.container} onPress={handleTimePickerOpen}>
@@ -160,4 +160,4 @@ export default function NotificationsSettingsScreen() {
       </Pressable>:<View/>}
     </>
   );
-} //className="text-lg text-gray-500"
+}

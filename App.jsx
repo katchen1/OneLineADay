@@ -10,6 +10,7 @@ import { LogBox } from "react-native";
 import colors from "tailwindcss/colors";
 import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
+import ChangeNameScreen from "./screens/ChangeName";
 import ChangePasswordScreen from "./screens/ChangePassword";
 import ChartDetailsScreen from "./screens/ChartDetails";
 import DeleteAccountScreen from "./screens/DeleteAccount";
@@ -135,6 +136,7 @@ export default function App() {
         />
         <Stack.Screen name="Change Password" component={ChangePasswordScreen} />
         <Stack.Screen name="Delete Account" component={DeleteAccountScreen} />
+        <Stack.Screen name="Change Name" component={ChangeNameScreen} /> 
       </Stack.Navigator>
     );
   };
