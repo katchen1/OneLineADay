@@ -6,6 +6,7 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Entry from "../components/Entry";
 import { auth, db } from "../firebaseConfig";
+import { useSwipe } from "../hooks/useSwipe";
 
 class FriendActivityScreen extends React.Component  {
   constructor(props) {
@@ -127,6 +128,21 @@ class FriendActivityScreen extends React.Component  {
     })});
   }
 
+  // Gesture handling
+  onSwipeLeft = () => {
+    // User has opted in, show friends' entries
+    let selectedDateIsToday = this.state.selectedDate.format("MMMM D") == moment().format("MMMM D");
+    if (!selectedDateIsToday) {
+      this.nextDay();
+    }
+  }
+  onSwipeRight = () => {
+    let selectedDateIsTwoDaysAgo = this.state.selectedDate.format("MMMM D") == moment().subtract(2, 'days').format("MMMM D"); 
+    if (!selectedDateIsTwoDaysAgo) {
+      this.previousDay();
+    }
+  }
+
   // Invoked immediately after the component is mounted  
   async componentDidMount() {
     if (auth.currentUser) {
@@ -137,6 +153,11 @@ class FriendActivityScreen extends React.Component  {
         headerRight: () => (<Ionicons style={styles.friendsButton} name="people" size={28} onPress={this.friendsOnPress} />)
       });
     }
+
+    // Gesture handling
+    const { onTouchStart, onTouchEnd } = useSwipe(this.onSwipeLeft, this.onSwipeRight, 6);
+    this.onTouchStart = onTouchStart;
+    this.onTouchEnd = onTouchEnd;
   }
   
   render() {
@@ -172,7 +193,7 @@ class FriendActivityScreen extends React.Component  {
     let selectedDateIsToday = this.state.selectedDate.format("MMMM D") == moment().format("MMMM D");
     let selectedDateIsTwoDaysAgo = this.state.selectedDate.format("MMMM D") == moment().subtract(2, 'days').format("MMMM D"); 
     return <View style={styles.containerEntries}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} onTouchStart={(e) => this.onTouchStart(e)} onTouchEnd={(e) => this.onTouchEnd(e)} >
         <View style={styles.header}>
           {selectedDateIsTwoDaysAgo? <View/>: <Ionicons name="arrow-back" size={28} onPress={this.previousDay} />}
           <Text style={styles.dateText}>{selectedDateString}</Text>
