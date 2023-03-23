@@ -165,7 +165,7 @@ export default function App() {
         initialRouteName="Home"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused }) => {
-            const color = focused ? colors.blue[700] : colors.gray[500];
+            const color = focused ? "#305DBF" : "gray";
             const size = 32;
 
             switch (route.name) {
@@ -182,7 +182,7 @@ export default function App() {
           tabBarShowLabel: false,
           tabBarStyle: {
             backgroundColor: colors.gray[100],
-            height: 64,
+            height: 80,
           },
           unmountOnBlur: true,
         })}

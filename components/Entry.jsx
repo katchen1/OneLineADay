@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
   },
   entryImage: {
     borderRadius: 10,
+    marginTop: 10,
     height: 200,
     resizeMode: "cover",
     width: "100%", 
