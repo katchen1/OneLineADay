@@ -120,7 +120,10 @@ class FriendActivityScreen extends React.Component  {
     let selectedDateString = this.state.selectedDate.format("MMMM D");
     this.setState({filteredEntries: this.state.friendEntries.filter(entry => {
       let entryDateString = moment(entry.date, "YYYY-MM-DD").format("MMMM D");
-      return entryDateString == selectedDateString;
+      let onSelectedDate = entryDateString == selectedDateString;
+      let excluded = entry.visibility.friends_except.includes(auth.currentUser.uid);
+      let isVisible = entry.visibility.mode == "friends" || (entry.visibility.mode == "friends_except" && !excluded);
+      return onSelectedDate && isVisible;
     })});
   }
 
