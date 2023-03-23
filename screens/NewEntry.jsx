@@ -1,10 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
+import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Sentiment from 'sentiment';
 import EntryEditable from "../components/EntryEditable";
+import { auth, db } from "../firebaseConfig";
 
 
 class NewEntryScreen extends React.Component {
@@ -14,7 +16,8 @@ class NewEntryScreen extends React.Component {
     this.entry = props.route.params.entry;
     this.editing = props.route.params.editing;
     this.onReturn = props.route.params.onReturn;
-    this.state = {text: this.entry.text, image: this.entry.image};
+    this.socialMode = false;
+    this.state = {text: this.entry.text, image: this.entry.image, visibility: this.entry.visibility, isLoading: true};
     if (this.editing) {
       // Editing an existing entry
       this.navigation.setOptions({ 
@@ -30,6 +33,7 @@ class NewEntryScreen extends React.Component {
   saveOnPress = () => {
     this.entry.image = this.state.image;
     this.entry.text = this.state.text;
+    this.entry.visibility = this.state.visibility;
     this.entry.sentimentScore = this.sentiment.analyze(this.entry.text).score;
 
     // Named entity recognition
@@ -52,8 +56,21 @@ class NewEntryScreen extends React.Component {
 
   // Delete entry
   deleteOnPress = () => {
-    this.onReturn(this.oldEntry, null);
-    this.navigation.goBack();
+    // Show confirmation message
+    Alert.alert(
+      "Delete Entry",
+      "Are you sure?",
+      [ 
+        { text: "Cancel" },
+        {
+          text: "OK",
+          onPress: () => {
+            this.onReturn(this.oldEntry, null);
+            this.navigation.goBack();
+          }
+        }
+      ],
+    );
   }
 
   // Cancel
@@ -66,7 +83,22 @@ class NewEntryScreen extends React.Component {
     this.entry.text = newText;
   }
 
+  // Invoked immediately after the component is mounted  
+  async componentDidMount() {
+    this.userRef = doc(db, "users", auth.currentUser.uid);
+    let docSnap = await getDoc(this.userRef);
+    if (docSnap.exists) {
+      this.socialMode = docSnap.data().social_mode;
+    }
+    this.setState({isLoading: false});
+  }
+
   render() {
+    // Buffer
+    if (this.state.isLoading) {
+      return <Text>Loading...</Text>
+    }
+
     let dateString = moment(this.entry.date, "YYYY-MM-DD").format("MMMM D");
 
     return <View>
@@ -76,6 +108,9 @@ class NewEntryScreen extends React.Component {
           entry={this.entry} 
           text={this.state.text} setText={(newText) => this.setState({text: newText})}
           image={this.state.image} setImage={(newImage) => this.setState({image: newImage})}
+          visibility={this.state.visibility} setVisibility={(newVisibility) => this.setState({visibility: newVisibility})}
+          navigation={this.navigation}
+          socialMode={this.socialMode}
         />
         <Pressable style={styles.saveButton} onPress={this.saveOnPress}>
           <Text style={styles.saveText}>Save</Text>

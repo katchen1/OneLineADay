@@ -9,13 +9,14 @@ import Modal from "react-native-modal";
 import Toast from "react-native-root-toast";
 import Entry from "../components/Entry";
 import { auth, db } from "../firebaseConfig";
+import { useSwipe } from "../hooks/useSwipe";
 
 
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.navigation = props.navigation;
-    this.state = { user: {}, filteredEntries: [], selectedDate: moment(), isCalendarVisible: false, isLoading : true };
+    this.state = { user: {}, filteredEntries: [], selectedDate: moment(), isCalendarVisible: false, isLoading : true, };
   }
   
   // Query user data
@@ -124,6 +125,14 @@ class HomeScreen extends React.Component {
     });
   }
 
+  onSwipeLeft = () => {
+    this.nextDay();
+  }
+
+  onSwipeRight = () => {
+    this.previousDay();
+  }
+
   // Invoked immediately after the component is mounted  
   async componentDidMount() {
     if (auth.currentUser) {
@@ -134,6 +143,12 @@ class HomeScreen extends React.Component {
         headerRight: () => (<Ionicons style={styles.dateButton} name="calendar" size={28} onPress={this.toggleModal} />)
       });
     }
+
+    // Gesture handling
+    const { onTouchStart, onTouchEnd } = useSwipe(this.onSwipeLeft, this.onSwipeRight, 6);
+    this.onTouchStart = onTouchStart;
+    this.onTouchEnd = onTouchEnd;
+    console.log(this.onTouchStart, this.onTouchEnd);
   }
 
   render() {
@@ -157,7 +172,7 @@ class HomeScreen extends React.Component {
     )
 
     return <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} onTouchStart={(e) => this.onTouchStart(e)} onTouchEnd={(e) => this.onTouchEnd(e)}>
         <View style={styles.header}>
           <Ionicons name="arrow-back" size={28} onPress={this.previousDay} />
           <Text style={styles.dateText}>{selectedDateString}</Text>

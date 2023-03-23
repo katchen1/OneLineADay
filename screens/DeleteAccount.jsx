@@ -2,6 +2,7 @@ import { deleteUser, signInWithEmailAndPassword } from "firebase/auth";
 import { deleteDoc, doc } from "firebase/firestore";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
+import Toast from "react-native-root-toast";
 import { auth, db } from "../firebaseConfig";
 
 export default function DeleteAccountScreen() {
@@ -17,6 +18,7 @@ export default function DeleteAccountScreen() {
         deleteUser(auth.currentUser),
         deleteDoc(doc(db, "users", auth.currentUser.uid))
       );
+      Toast.show("Account deleted");
     } catch (error) {
       console.error(error);
     }

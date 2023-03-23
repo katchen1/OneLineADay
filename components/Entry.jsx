@@ -62,7 +62,7 @@ const Entry = ({entry, uid, navigation, index, updateEntry}) => {
     // Locally
     let index = likes.indexOf(uid);
     let likesNew = likes.slice();
-    likesNew.splice(index);
+    likesNew.splice(index, 1);
     entry.likes = likesNew;
     setLikes(likesNew);
     // TODO: update in firestore
@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
   },
   entryImage: {
     borderRadius: 10,
+    marginTop: 10,
     height: 200,
     resizeMode: "cover",
     width: "100%", 

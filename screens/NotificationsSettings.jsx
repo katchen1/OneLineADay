@@ -108,8 +108,7 @@ export default function NotificationsSettingsScreen() {
       alignItems: "center",
       paddingHorizontal: 5,
       marginHorizontal: 12,
-      marginTop: 12,
-      marginBottom: 15,
+      marginTop: 10,
       borderRadius: 10,
     },
     time_picker: {
@@ -148,30 +147,17 @@ export default function NotificationsSettingsScreen() {
         <Switch
           value={notificationsEnabled}
           onValueChange={toggleNotifications}
+          trackColor={{true: "#305DBF"}}
         />
       </View>
-      <Pressable style={styles.container} onPress={handleTimePickerOpen}>
-        <Text style={styles.text}>Reset reminder time</Text>
-        <Text
-          className="text-gray-500"
-          style={styles.date_text}
-        >{`${notificationTime.getHours()}:${notificationTime
-          .getMinutes()
-          .toString()
-          .padStart(2, "0")}`}</Text>
-      </Pressable>
-      <View style={styles.time_picker}>
-        {showTimePicker ? (
-          <>
-            <Text style={styles.time_picker_text}>Click to reset</Text>
-            <DateTimePicker
-              mode="time"
-              value={notificationTime}
-              onChange={handleTimePickerChange}
-            />
-          </>
-        ) : null}
-      </View>
+      {notificationsEnabled? <Pressable style={styles.container} onPress={handleTimePickerOpen}>
+        <Text style={styles.text}>Reminder time</Text>
+        <DateTimePicker
+          mode="time"
+          value={notificationTime}
+          onChange={handleTimePickerChange}
+        />
+      </Pressable>:<View/>}
     </>
   );
-} //className="text-lg text-gray-500"
+}

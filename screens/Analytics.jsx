@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-import { BarChart, LineChart } from "react-native-chart-kit";
+import { BarChart, LineChart, PieChart } from "react-native-chart-kit";
 import ViewShot from "react-native-view-shot";
 import { auth, db } from "../firebaseConfig";
 
@@ -62,6 +62,22 @@ class AnalyticsScreen extends React.Component {
     return output;
   }
 
+  // Get sentiment distribution
+  getSentimentDistribution = () => {
+    let positiveCount = 0, neutralCount = 0, negativeCount = 0;
+    this.state.user.entries.forEach(function(entry) {
+      if (entry["sentimentScore"] > 0) positiveCount += 1;
+      else if (entry["sentimentScore"] == 0) neutralCount += 1;
+      else if (entry["sentimentScore"] < 0) negativeCount += 1;
+    }); 
+    let output = [
+      {name: "Positive", freq: positiveCount, color: "green", legendFontColor: "gray", legendFontSize: 16},
+      {name: "Neutral", freq: neutralCount, color: "#305DBF", legendFontColor: "gray", legendFontSize: 16},
+      {name: "Negative", freq: negativeCount, color: "red", legendFontColor: "gray", legendFontSize: 16},
+    ]
+    return output;
+  }
+
   // Get named entities and counts for bar charts
   getNamedEntities = () => {
     entityCounts = {"location": {}, "person": {}, "company": {}};
@@ -99,7 +115,7 @@ class AnalyticsScreen extends React.Component {
 
   sentimentOnPress = () => {
     let sentimentData = this.getSentiment();
-    this.navigation.navigate("Chart Details", {title: "Sentiment", data: sentimentData});
+    this.navigation.navigate("Chart Details", {title: "Sentiment Trend", data: sentimentData});
   }
 
   placesOnPress = () => {
@@ -115,6 +131,12 @@ class AnalyticsScreen extends React.Component {
   companiesOnPress = () => {
     let entityCounts = this.getNamedEntities();
     this.navigation.navigate("Chart Details", {title: "Companies", data: entityCounts["company"]});
+  }
+
+  sentimentDistributionOnPress = () => {
+    let dist = this.getSentimentDistribution();
+    let sentimentCounts = [["Positive", dist[0].freq], ["Neutral", dist[1].freq], ["Negative", dist[2].freq]];
+    this.navigation.navigate("Chart Details", {title: "Sentiment", data: sentimentCounts});
   }
 
   // Line chart for sentiment trend
@@ -163,6 +185,25 @@ class AnalyticsScreen extends React.Component {
     </View>
   }
 
+  // Pie chart for sentiment distribution
+  PieChartRender = ({ data }) => {
+    return <View style={styles.chartContainer}>
+      <View style={styles.chartHeader}>
+        <Text style={styles.chartTitle}>Sentiment Distribution</Text>
+       <Ionicons style={styles.moreIcon} name="list" size={28} color="gray" onPress={this.sentimentDistributionOnPress} />
+      </View>
+      <PieChart
+        data={data}
+        height={200}
+        width={Dimensions.get("window").width - 10}
+        accessor={"freq"}
+        chartConfig={styles.pieChartConfig}
+        backgroundColor={"transparent"}
+        center={[20, 0]}
+      />
+    </View>
+  }
+
   // Invoked immediately after the component is mounted  
   async componentDidMount() {
     if (auth.currentUser) {
@@ -187,6 +228,9 @@ class AnalyticsScreen extends React.Component {
     let lineChartData = [...Object.values(daysAgoToSentiment)].reverse();
     let range = Math.max(Math.abs(Math.min(...lineChartData)), Math.abs(Math.max(...lineChartData)));
 
+    // Pie chart
+    let pieChartData = this.getSentimentDistribution();
+
     // Bar charts
     let entityCounts = this.getNamedEntities();
     for (tag in entityCounts) { // Show only top 5 counts
@@ -203,6 +247,7 @@ class AnalyticsScreen extends React.Component {
       <ScrollView style={styles.scrollView}>
         <ViewShot ref={this.viewShotRef} options={{format: "jpg", quality: 0.9}}>
           <this.SentimentChartRender labels={lineChartLabels} data={lineChartData} range={range} />
+          <this.PieChartRender data={pieChartData} onPress={this.companiesOnPress} />
           <this.BarChartRender labels={locationLabels} data={locationData} tag={"Places"} onPress={this.placesOnPress} />
           <this.BarChartRender labels={personLabels} data={personData} tag={"People"} onPress={this.peopleOnPress} />
           <this.BarChartRender labels={companyLabels} data={companyData} tag={"Companies"} onPress={this.companiesOnPress} />
@@ -263,6 +308,9 @@ const styles = StyleSheet.create({
   moreIcon: {
     alignSelf: "center",
   },
+  pieChartConfig: {
+    color: () => "white",
+  },
   scrollView: {
     height: "100%",
   },
@@ -273,8 +321,6 @@ const styles = StyleSheet.create({
     decimalPlaces: 0, // optional, defaults to 2dp
     fillShadowGradientFromOpacity: 0,
     fillShadowGradientToOpacity: 0,
-    labelColor: () => "gray",
-    propsForDots: {r: "5"},
   },
   sentimentIcon: {
     marginLeft: 10,

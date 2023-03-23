@@ -20,7 +20,7 @@ class ChartDetailsScreen extends React.Component {
       <View style={styles.item}>
         <View>
           <Text style={styles.wordText}>{item[0]}</Text>
-          {this.title == "Sentiment"? <Text style={styles.agoText}>{item[2]}</Text>: <View/>}
+          {this.title == "Sentiment Trend"? <Text style={styles.agoText}>{item[2]}</Text>: <View/>}
         </View>
         <Text style={styles.countText}>{item[1]}</Text>
       </View>
@@ -34,8 +34,8 @@ class ChartDetailsScreen extends React.Component {
   render() {
     return <View>
       <View style={styles.item}>
-        {this.title == "Sentiment"? <Text>Date</Text>: <Text>{this.title}</Text>}
-        {this.title == "Sentiment"? <Text>Sentiment</Text>: <Text>Count</Text>}
+        {this.title == "Sentiment Trend"? <Text>Date</Text>: <Text>{this.title}</Text>}
+        {this.title == "Sentiment Trend"? <Text>Sentiment</Text>: <Text>Count</Text>}
       </View>
       <this.ItemDivider/>
       <FlatList

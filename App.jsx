@@ -10,6 +10,7 @@ import { LogBox } from "react-native";
 import colors from "tailwindcss/colors";
 import { auth } from "./firebaseConfig";
 import AnalyticsScreen from "./screens/Analytics";
+import ChangeNameScreen from "./screens/ChangeName";
 import ChangePasswordScreen from "./screens/ChangePassword";
 import ChartDetailsScreen from "./screens/ChartDetails";
 import DeleteAccountScreen from "./screens/DeleteAccount";
@@ -21,6 +22,7 @@ import NotificationsSettingsScreen from "./screens/NotificationsSettings";
 import SettingsScreen from "./screens/Settings";
 import SignInScreen from "./screens/SignIn";
 import SignUpScreen from "./screens/SignUp";
+import VisibilitySettingsScreen from "./screens/VisibilitySettings";
 
 LogBox.ignoreAllLogs();
 
@@ -119,6 +121,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home Screen">
         <Stack.Screen name="Home Screen" component={HomeScreen} />
         <Stack.Screen name="New Entry" component={NewEntryScreen} />
+        <Stack.Screen name="Visibility Settings" component={VisibilitySettingsScreen} />
       </Stack.Navigator>
     );
   };
@@ -133,6 +136,7 @@ export default function App() {
         />
         <Stack.Screen name="Change Password" component={ChangePasswordScreen} />
         <Stack.Screen name="Delete Account" component={DeleteAccountScreen} />
+        <Stack.Screen name="Change Name" component={ChangeNameScreen} /> 
       </Stack.Navigator>
     );
   };
@@ -161,7 +165,7 @@ export default function App() {
         initialRouteName="Home"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused }) => {
-            const color = focused ? colors.blue[700] : colors.gray[500];
+            const color = focused ? "#305DBF" : "gray";
             const size = 32;
 
             switch (route.name) {
@@ -178,7 +182,7 @@ export default function App() {
           tabBarShowLabel: false,
           tabBarStyle: {
             backgroundColor: colors.gray[100],
-            height: 64,
+            height: 80,
           },
           unmountOnBlur: true,
         })}

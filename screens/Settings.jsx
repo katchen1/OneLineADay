@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import Toast from "react-native-root-toast";
 import { auth } from "../firebaseConfig";
 
 export default function SettingsScreen({ navigation }) {
@@ -13,7 +14,7 @@ export default function SettingsScreen({ navigation }) {
       alignItems: "center",
       paddingHorizontal: 5,
       marginHorizontal: 8,
-      marginVertical: 16,
+      marginTop: 10,
       borderRadius: 10,
     },
     icons: {
@@ -60,6 +61,16 @@ export default function SettingsScreen({ navigation }) {
           { backgroundColor: pressed ? "#EEEEEE" : "white" },
           styles.item,
         ]}
+        onPress={() => navigation.navigate("Change Name")}
+      >
+        <Ionicons name="person-circle" size={32} style={styles.icons} />
+        <Text style={styles.text}>Change name</Text>
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [
+          { backgroundColor: pressed ? "#EEEEEE" : "white" },
+          styles.item,
+        ]}
         onPress={() => navigation.navigate("Change Password")}
       >
         <Ionicons name="lock-closed" size={32} style={styles.icons} />
@@ -70,7 +81,22 @@ export default function SettingsScreen({ navigation }) {
           { backgroundColor: pressed ? "#EEEEEE" : "white" },
           styles.item,
         ]}
-        onPress={() => auth.signOut().catch()}
+        onPress={() => {
+          Alert.alert(
+            "Sign Out",
+            "Are you sure?",
+            [ 
+              { text: "Cancel" },
+              {
+                text: "OK",
+                onPress: () => {
+                  Toast.show("Signed out");
+                  auth.signOut().catch();
+                }
+              }
+            ],
+          );
+        }}
       >
         <Ionicons name="exit" size={36} style={styles.signout_icon} />
         <Text style={styles.text}>Sign out</Text>

@@ -1,11 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { collection, doc, documentId, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc } from "firebase/firestore";
 import moment from "moment";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Entry from "../components/Entry";
 import { auth, db } from "../firebaseConfig";
+import { useSwipe } from "../hooks/useSwipe";
 
 class FriendActivityScreen extends React.Component  {
   constructor(props) {
@@ -56,7 +57,10 @@ class FriendActivityScreen extends React.Component  {
 
   // When the friends icon on the upper right is pressed
   friendsOnPress = () => {
-    this.navigation.navigate("Friends", {data: this.state.user.friends});
+    this.navigation.navigate("Friends", {
+      data: this.state.user.friends,
+      onReturn: () => this.queryUser(auth.currentUser),
+    });
   }
 
   // Query user data
@@ -86,14 +90,16 @@ class FriendActivityScreen extends React.Component  {
     this.setState({friendEntries: userEntries});
 
     // Now actually query friends data
-    const q = query(collection(db, "users"), where(documentId(), "in", friendUids));
+    const q = query(collection(db, "users"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
-      let entries = doc.data().entries;
-      entries.forEach((entry) => {
-        entry.name = doc.data().name;
-      });
-      this.setState({friendEntries: this.state.friendEntries.concat(entries)});
+      if (friendUids.includes(doc.id) && doc.data().social_mode) {
+        let entries = doc.data().entries;
+        entries.forEach((entry) => {
+          entry.name = doc.data().name;
+        });
+        this.setState({friendEntries: this.state.friendEntries.concat(entries)});
+      }
     });
     this.filterEntries();
   }
@@ -115,8 +121,26 @@ class FriendActivityScreen extends React.Component  {
     let selectedDateString = this.state.selectedDate.format("MMMM D");
     this.setState({filteredEntries: this.state.friendEntries.filter(entry => {
       let entryDateString = moment(entry.date, "YYYY-MM-DD").format("MMMM D");
-      return entryDateString == selectedDateString;
+      let onSelectedDate = entryDateString == selectedDateString;
+      let excluded = entry.visibility.friends_except.includes(auth.currentUser.uid);
+      let isVisible = entry.visibility.mode == "friends" || (entry.visibility.mode == "friends_except" && !excluded);
+      return onSelectedDate && isVisible;
     })});
+  }
+
+  // Gesture handling
+  onSwipeLeft = () => {
+    // User has opted in, show friends' entries
+    let selectedDateIsToday = this.state.selectedDate.format("MMMM D") == moment().format("MMMM D");
+    if (!selectedDateIsToday) {
+      this.nextDay();
+    }
+  }
+  onSwipeRight = () => {
+    let selectedDateIsTwoDaysAgo = this.state.selectedDate.format("MMMM D") == moment().subtract(2, 'days').format("MMMM D"); 
+    if (!selectedDateIsTwoDaysAgo) {
+      this.previousDay();
+    }
   }
 
   // Invoked immediately after the component is mounted  
@@ -129,17 +153,13 @@ class FriendActivityScreen extends React.Component  {
         headerRight: () => (<Ionicons style={styles.friendsButton} name="people" size={28} onPress={this.friendsOnPress} />)
       });
     }
-  }
 
-  // Update entry
-  updateEntry = (oldEntry, newEntry, index) => {
-    console.log("OLD");
-    console.log(oldEntry);
-    console.log("NEW");
-    console.log(newEntry);
-    console.log("INDEX: " + index);
+    // Gesture handling
+    const { onTouchStart, onTouchEnd } = useSwipe(this.onSwipeLeft, this.onSwipeRight, 6);
+    this.onTouchStart = onTouchStart;
+    this.onTouchEnd = onTouchEnd;
   }
-
+  
   render() {
     // Buffer
     if (this.state.isLoading) {
@@ -173,7 +193,7 @@ class FriendActivityScreen extends React.Component  {
     let selectedDateIsToday = this.state.selectedDate.format("MMMM D") == moment().format("MMMM D");
     let selectedDateIsTwoDaysAgo = this.state.selectedDate.format("MMMM D") == moment().subtract(2, 'days').format("MMMM D"); 
     return <View style={styles.containerEntries}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} onTouchStart={(e) => this.onTouchStart(e)} onTouchEnd={(e) => this.onTouchEnd(e)} >
         <View style={styles.header}>
           {selectedDateIsTwoDaysAgo? <View/>: <Ionicons name="arrow-back" size={28} onPress={this.previousDay} />}
           <Text style={styles.dateText}>{selectedDateString}</Text>
@@ -182,7 +202,7 @@ class FriendActivityScreen extends React.Component  {
         {
           // List of the user's entry of the selected date
           this.state.filteredEntries.map((entry, index) => {
-            return <Entry key={JSON.stringify(entry)} uid={this.state.user.uid} entry={entry} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
+            return <Entry key={JSON.stringify(entry)} uid={this.state.user.uid} entry={entry} navigation={this.navigation} index={index} />;
           })
         }
       </ScrollView>
