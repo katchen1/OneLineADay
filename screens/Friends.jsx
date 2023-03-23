@@ -4,6 +4,7 @@ import { collection, doc, getDoc, getDocs, query, setDoc } from "firebase/firest
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import Autocomplete from "react-native-autocomplete-input";
+import Toast from "react-native-root-toast";
 import { auth, db } from "../firebaseConfig";
 
 class FriendsScreen extends React.Component {
@@ -59,6 +60,7 @@ class FriendsScreen extends React.Component {
     }
     friendsNew.splice(index, 1);
     this.setState({friends: friendsNew});
+    Toast.show("Friend removed");
     this.removeFriendFirestore(user.uid);
   }
 
@@ -84,6 +86,7 @@ class FriendsScreen extends React.Component {
   // When the add friend button is pressed
   addFriendOnPress = (user) => {
     this.setState({friends: this.state.friends.concat(user)});
+    Toast.show("Friend added");
     this.addFriendFirestore(user.uid);
   }
 
