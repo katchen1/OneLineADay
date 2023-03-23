@@ -17,7 +17,10 @@ export default function SignUpScreen({ navigation }) {
       await setDoc(doc(db, "users", uid), {
         // Default data
         email: email,
-        entries: []
+        entries: [],
+        social_mode: false, // Private mode by default
+        name: email, // The user's name is their email by default
+        friends: [],
       });
     } catch (error) {
       console.error(error);

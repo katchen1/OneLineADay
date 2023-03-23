@@ -14,6 +14,7 @@ import ChangePasswordScreen from "./screens/ChangePassword";
 import ChartDetailsScreen from "./screens/ChartDetails";
 import DeleteAccountScreen from "./screens/DeleteAccount";
 import FriendActivityScreen from "./screens/FriendActivity";
+import FriendsScreen from "./screens/Friends";
 import HomeScreen from "./screens/Home";
 import NewEntryScreen from "./screens/NewEntry";
 import NotificationsSettingsScreen from "./screens/NotificationsSettings";
@@ -145,6 +146,15 @@ export default function App() {
     )
   }
 
+  const SocialStack = () => {
+    return (
+      <Stack.Navigator initialRouteName="Friend Activity">
+        <Stack.Screen name="Friend Activity" component={FriendActivityScreen} />
+        <Stack.Screen name="Friends" component={FriendsScreen} />
+      </Stack.Navigator>
+    )
+  }
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -159,7 +169,7 @@ export default function App() {
                 return <Ionicons name="home" color={color} size={size} />;
               case "Analytics Stack":
                 return <Ionicons name="analytics" color={color} size={size} />;
-              case "Friend Activity":
+              case "Social Stack":
                 return <Ionicons name="people" color={color} size={size} />;
               case "Settings Tab":
                 return <Ionicons name="settings" color={color} size={size} />;
@@ -175,7 +185,7 @@ export default function App() {
       >
         <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
         <Tab.Screen name="Analytics Stack" component={AnalyticsStack} options={{ headerShown: false }} />
-        <Tab.Screen name="Friend Activity" component={FriendActivityScreen} />
+        <Tab.Screen name="Social Stack" component={SocialStack} options={{ headerShown: false }} />
         <Tab.Screen
           name="Settings Tab"
           component={SettingsStack}

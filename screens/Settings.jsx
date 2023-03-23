@@ -27,17 +27,17 @@ export default function SettingsScreen({ navigation }) {
     },
     delete_icon: {
       paddingLeft: 7,
-      color: "be3333",
+      color: "#be3333",
     },
     text: {
       fontSize: 20,
-      corlor: "#263238",
+      color: "#263238",
       paddingLeft: 8,
       flex: 8,
     },
     delete_account_text: {
       fontSize: 20,
-      corlor: "#263238",
+      color: "#263238",
       paddingLeft: 8,
     },
   });

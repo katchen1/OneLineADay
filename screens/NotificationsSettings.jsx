@@ -125,7 +125,7 @@ export default function NotificationsSettingsScreen() {
     },
     text: {
       fontSize: 20,
-      corlor: "#263238",
+      color: "#263238",
       paddingLeft: 8,
       flex: 8,
     },
@@ -135,7 +135,7 @@ export default function NotificationsSettingsScreen() {
     },
     time_picker_text: {
       fontSize: 20,
-      corlor: "transparent",
+      color: "transparent",
       paddingLeft: 8,
       flex: 8,
     },

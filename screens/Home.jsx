@@ -24,6 +24,7 @@ class HomeScreen extends React.Component {
     let docSnap = await getDoc(this.userRef);
     if (docSnap.exists) {
       let user = docSnap.data();
+      user.uid = docSnap.id;
       this.setState({ user: user, isLoading: false });
       this.filterEntries();
     }
@@ -110,7 +111,14 @@ class HomeScreen extends React.Component {
   // Add a journal entry
   createOnPress = () => {
     this.navigation.navigate("New Entry", {
-      entry: {text: "", date: this.state.selectedDate.format("YYYY-MM-DD"), image: ""}, 
+      entry: {
+        text: "", 
+        date: this.state.selectedDate.format("YYYY-MM-DD"), 
+        image: "", 
+        likes: [], 
+        comments: [], 
+        visibility: {mode: "friends", friends_except: []}
+      }, 
       editing: false,
       onReturn: (oldEntry, newEntry) => this.updateEntry(oldEntry, newEntry, -1),
     });
@@ -166,7 +174,7 @@ class HomeScreen extends React.Component {
         {
           // List of the user's entry of the selected date
           this.state.filteredEntries.map((entry, index) => {
-            return <Entry key={index} entry={entry} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
+            return <Entry key={index} entry={entry} uid={this.state.user.uid} navigation={this.navigation} index={index} updateEntry={this.updateEntry}/>;
           })
         }
       </ScrollView>
