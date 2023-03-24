@@ -31,18 +31,23 @@ export default function DeleteAccountScreen() {
           className="h-16 rounded-md border border-gray-500 p-4 text-base"
           placeholder="Email"
           onChangeText={setEmail}
+          style={{ fontFamily: "Raleway_400Regular" }}
         />
         <TextInput
           className="mt-2 h-16 rounded-md border border-gray-500 p-4 text-base"
           placeholder="Password"
           secureTextEntry={true}
           onChangeText={setPassword}
+          style={{ fontFamily: "Raleway_400Regular" }}
         />
         <Pressable
           className="mt-2 h-16 items-center justify-center rounded-md bg-red-700"
           onPress={deleteAccount}
         >
-          <Text className="items-center justify-center text-xl font-bold text-gray-100">
+          <Text
+            className="items-center justify-center text-xl text-gray-100"
+            style={{ fontFamily: "Raleway_700Bold" }}
+          >
             Delete account
           </Text>
         </Pressable>

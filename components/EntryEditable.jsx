@@ -1,13 +1,23 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { AutoGrowingTextInput } from "react-native-autogrow-textinput";
 
-const EntryEditable = ({entry, text, setText, image, setImage, visibility, setVisibility, navigation, socialMode}) => {
+const EntryEditable = ({
+  entry,
+  text,
+  setText,
+  image,
+  setImage,
+  visibility,
+  setVisibility,
+  navigation,
+  socialMode,
+}) => {
   let year = moment(entry.date, "YYYY-MM-DD").year();
-  
+
   // Calculate years ago
   let yearsAgoText = "";
   let yearsAgo = new Date().getFullYear() - year;
@@ -34,25 +44,34 @@ const EntryEditable = ({entry, text, setText, image, setImage, visibility, setVi
 
   const visibilityOnPress = () => {
     navigation.navigate("Visibility Settings", {
-      visibility: visibility, 
+      visibility: visibility,
       onReturn: (newVisibility) => {
         setVisibility(newVisibility);
-      }
+      },
     });
-  }
+  };
 
   const removeImageOnPress = () => {
     setImage("");
-  }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.entryHeader}>
         <View style={styles.entryHeaderText}>
-          <Text style={styles.entryTitle}>{ yearsAgoText }</Text>
-          <Text style={styles.entrySubtitle}>{ year }</Text>
+          <Text style={styles.entryTitle}>{yearsAgoText}</Text>
+          <Text style={styles.entrySubtitle}>{year}</Text>
         </View>
-        {socialMode? <Ionicons style={styles.visibilityIcon} name="eye" size={24} onPress={visibilityOnPress} />: <View/>}
+        {socialMode ? (
+          <Ionicons
+            style={styles.visibilityIcon}
+            name="eye"
+            size={24}
+            onPress={visibilityOnPress}
+          />
+        ) : (
+          <View />
+        )}
       </View>
       <AutoGrowingTextInput
         style={styles.input}
@@ -62,18 +81,26 @@ const EntryEditable = ({entry, text, setText, image, setImage, visibility, setVi
       />
       {image && <Image source={{ uri: image }} style={styles.entryImage} />}
       <View style={styles.buttonRow}>
-        <Pressable style={styles.selectImageButton} onPress={selectImageOnPress}>
+        <Pressable
+          style={styles.selectImageButton}
+          onPress={selectImageOnPress}
+        >
           <Text style={styles.selectImageText}>Select Image</Text>
         </Pressable>
-        {image == ""? <View/>:
-          <Pressable style={styles.removeImageButton} onPress={removeImageOnPress}>
+        {image == "" ? (
+          <View />
+        ) : (
+          <Pressable
+            style={styles.removeImageButton}
+            onPress={removeImageOnPress}
+          >
             <Text style={styles.removeImageText}>Remove</Text>
           </Pressable>
-        }
+        )}
       </View>
     </View>
   );
-}
+};
 
 export default EntryEditable;
 
@@ -104,34 +131,35 @@ const styles = StyleSheet.create({
   },
   entryHeaderText: {
     display: "flex",
-    flexDirection: "row"
+    flexDirection: "row",
+    fontFamily: "Raleway_400Regular",
   },
   entryImage: {
     borderRadius: 10,
     height: 200,
     resizeMode: "cover",
-    width: "100%", 
+    width: "100%",
   },
   entrySubtitle: {
     color: "grey",
     fontSize: 14,
-    fontWeight: "300",
+    fontFamily: "Raleway_300Light",
   },
   entryText: {
     fontSize: 14,
-    fontWeight: "300",
     marginBottom: 5,
+    fontFamily: "Raleway_300Light",
   },
   entryTitle: {
     fontSize: 14,
-    fontWeight: "500",
     marginRight: 5,
+    fontFamily: "Raleway_500Medium",
   },
   input: {
     width: "100%",
     fontSize: 14,
-    fontWeight: "300",
     marginBottom: 10,
+    fontFamily: "Raleway_300Light",
   },
   removeImageButton: {
     backgroundColor: "#EEEEEE",
@@ -146,8 +174,8 @@ const styles = StyleSheet.create({
   removeImageText: {
     alignSelf: "center",
     fontSize: 20,
-    fontWeight: "500",
     margin: 5,
+    fontFamily: "Raleway_500Medium",
   },
   selectImageButton: {
     backgroundColor: "#305DBF",
@@ -162,8 +190,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     color: "white",
     fontSize: 20,
-    fontWeight: "500",
     margin: 5,
+    fontFamily: "Raleway_500Medium",
   },
   visibilityIcon: {
     color: "#305DBF",

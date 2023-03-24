@@ -34,25 +34,31 @@ export default function ChangePasswordScreen({ navigation }) {
           placeholder="Current password"
           secureTextEntry={true}
           onChangeText={setCurrentPassword}
+          style={{ fontFamily: "Raleway_400Regular" }}
         />
         <TextInput
           className="mt-2 h-16 rounded-md border border-gray-500 p-4 text-base"
           placeholder="New password"
           secureTextEntry={true}
           onChangeText={setNewPassword1}
+          style={{ fontFamily: "Raleway_400Regular" }}
         />
         <TextInput
           className="mt-2 h-16 rounded-md border border-gray-500 p-4 text-base"
           placeholder="Re-enter new password"
           secureTextEntry={true}
           onChangeText={setNewPassword2}
+          style={{ fontFamily: "Raleway_400Regular" }}
         />
         <Pressable
           className="mt-2 h-16 items-center justify-center rounded-md bg-blue-700"
-          style={{backgroundColor: "#305DBF"}}
+          style={{ backgroundColor: "#305DBF" }}
           onPress={updateUserPassword}
         >
-          <Text className="items-center justify-center text-xl font-bold text-gray-100">
+          <Text
+            className="items-center justify-center text-xl text-gray-100"
+            style={{ fontFamily: "Raleway_700Bold" }}
+          >
             Update password
           </Text>
         </Pressable>

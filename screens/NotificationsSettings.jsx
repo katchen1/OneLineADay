@@ -127,16 +127,19 @@ export default function NotificationsSettingsScreen() {
       color: "#263238",
       paddingLeft: 8,
       flex: 8,
+      fontFamily: "Raleway_400Regular",
     },
     date_text: {
       fontSize: 20,
       paddingRight: 20,
+      fontFamily: "Raleway_400Regular",
     },
     time_picker_text: {
       fontSize: 20,
       color: "transparent",
       paddingLeft: 8,
       flex: 8,
+      fontFamily: "Raleway_400Regular",
     },
   });
 
@@ -147,17 +150,21 @@ export default function NotificationsSettingsScreen() {
         <Switch
           value={notificationsEnabled}
           onValueChange={toggleNotifications}
-          trackColor={{true: "#305DBF"}}
+          trackColor={{ true: "#305DBF" }}
         />
       </View>
-      {notificationsEnabled? <Pressable style={styles.container} onPress={handleTimePickerOpen}>
-        <Text style={styles.text}>Reminder time</Text>
-        <DateTimePicker
-          mode="time"
-          value={notificationTime}
-          onChange={handleTimePickerChange}
-        />
-      </Pressable>:<View/>}
+      {notificationsEnabled ? (
+        <Pressable style={styles.container} onPress={handleTimePickerOpen}>
+          <Text style={styles.text}>Reminder time</Text>
+          <DateTimePicker
+            mode="time"
+            value={notificationTime}
+            onChange={handleTimePickerChange}
+          />
+        </Pressable>
+      ) : (
+        <View />
+      )}
     </>
   );
 }

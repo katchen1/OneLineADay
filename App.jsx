@@ -1,3 +1,24 @@
+import {
+  Raleway_100Thin,
+  Raleway_100Thin_Italic,
+  Raleway_200ExtraLight,
+  Raleway_200ExtraLight_Italic,
+  Raleway_300Light,
+  Raleway_300Light_Italic,
+  Raleway_400Regular,
+  Raleway_400Regular_Italic,
+  Raleway_500Medium,
+  Raleway_500Medium_Italic,
+  Raleway_600SemiBold,
+  Raleway_600SemiBold_Italic,
+  Raleway_700Bold,
+  Raleway_700Bold_Italic,
+  Raleway_800ExtraBold,
+  Raleway_800ExtraBold_Italic,
+  Raleway_900Black,
+  Raleway_900Black_Italic,
+  useFonts,
+} from "@expo-google-fonts/raleway";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
@@ -75,6 +96,26 @@ export default function App() {
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
+  const [fontsLoaded] = useFonts({
+    Raleway_100Thin,
+    Raleway_100Thin_Italic,
+    Raleway_200ExtraLight,
+    Raleway_200ExtraLight_Italic,
+    Raleway_300Light,
+    Raleway_300Light_Italic,
+    Raleway_400Regular,
+    Raleway_400Regular_Italic,
+    Raleway_500Medium,
+    Raleway_500Medium_Italic,
+    Raleway_600SemiBold,
+    Raleway_600SemiBold_Italic,
+    Raleway_700Bold,
+    Raleway_700Bold_Italic,
+    Raleway_800ExtraBold,
+    Raleway_800ExtraBold_Italic,
+    Raleway_900Black,
+    Raleway_900Black_Italic,
+  });
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) =>
@@ -105,6 +146,8 @@ export default function App() {
     });
   }, []);
 
+  if (!fontsLoaded) return null;
+
   if (!userIsSignedIn) {
     return (
       <NavigationContainer>
@@ -121,7 +164,10 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home Screen">
         <Stack.Screen name="Home Screen" component={HomeScreen} />
         <Stack.Screen name="New Entry" component={NewEntryScreen} />
-        <Stack.Screen name="Visibility Settings" component={VisibilitySettingsScreen} />
+        <Stack.Screen
+          name="Visibility Settings"
+          component={VisibilitySettingsScreen}
+        />
       </Stack.Navigator>
     );
   };
@@ -136,7 +182,7 @@ export default function App() {
         />
         <Stack.Screen name="Change Password" component={ChangePasswordScreen} />
         <Stack.Screen name="Delete Account" component={DeleteAccountScreen} />
-        <Stack.Screen name="Change Name" component={ChangeNameScreen} /> 
+        <Stack.Screen name="Change Name" component={ChangeNameScreen} />
       </Stack.Navigator>
     );
   };
@@ -147,8 +193,8 @@ export default function App() {
         <Stack.Screen name="Analytics" component={AnalyticsScreen} />
         <Stack.Screen name="Chart Details" component={ChartDetailsScreen} />
       </Stack.Navigator>
-    )
-  }
+    );
+  };
 
   const SocialStack = () => {
     return (
@@ -156,8 +202,8 @@ export default function App() {
         <Stack.Screen name="Friend Activity" component={FriendActivityScreen} />
         <Stack.Screen name="Friends" component={FriendsScreen} />
       </Stack.Navigator>
-    )
-  }
+    );
+  };
 
   return (
     <NavigationContainer>
@@ -187,9 +233,21 @@ export default function App() {
           unmountOnBlur: true,
         })}
       >
-        <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
-        <Tab.Screen name="Analytics Stack" component={AnalyticsStack} options={{ headerShown: false }} />
-        <Tab.Screen name="Social Stack" component={SocialStack} options={{ headerShown: false }} />
+        <Tab.Screen
+          name="Home"
+          component={HomeStack}
+          options={{ headerShown: false }}
+        />
+        <Tab.Screen
+          name="Analytics Stack"
+          component={AnalyticsStack}
+          options={{ headerShown: false }}
+        />
+        <Tab.Screen
+          name="Social Stack"
+          component={SocialStack}
+          options={{ headerShown: false }}
+        />
         <Tab.Screen
           name="Settings Tab"
           component={SettingsStack}
