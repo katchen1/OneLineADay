@@ -35,11 +35,13 @@ export default function SettingsScreen({ navigation }) {
       color: "#263238",
       paddingLeft: 8,
       flex: 8,
+      fontFamily: "Raleway_400Regular",
     },
     delete_account_text: {
       fontSize: 20,
       color: "#263238",
       paddingLeft: 8,
+      fontFamily: "Raleway_400Regular",
     },
   });
 
@@ -82,20 +84,16 @@ export default function SettingsScreen({ navigation }) {
           styles.item,
         ]}
         onPress={() => {
-          Alert.alert(
-            "Sign Out",
-            "Are you sure?",
-            [ 
-              { text: "Cancel" },
-              {
-                text: "OK",
-                onPress: () => {
-                  Toast.show("Signed out");
-                  auth.signOut().catch();
-                }
-              }
-            ],
-          );
+          Alert.alert("Sign Out", "Are you sure?", [
+            { text: "Cancel" },
+            {
+              text: "OK",
+              onPress: () => {
+                Toast.show("Signed out");
+                auth.signOut().catch();
+              },
+            },
+          ]);
         }}
       >
         <Ionicons name="exit" size={36} style={styles.signout_icon} />
